@@ -91,13 +91,13 @@
             border: 2px solid var(--text-muted); border-radius: 12px; font-size: 1rem; font-weight: 600;
         }
 
-        /* CORRECTION : INPUTS & SELECTS (Blanc sur texte noir) */
-        select, input[type="text"], input[type="password"], input[type="number"] {
+        /* INPUTS & SELECTS (Blanc sur texte noir) */
+        select, input[type="text"], input[type="password"], input[type="number"].main-input {
             width: 100%; padding: 1rem; margin-bottom: 1.5rem;
             border: 2px solid transparent; border-radius: 12px; font-size: 1.1rem;
             background-color: #ffffff; color: #0f172a; font-weight: 700;
             outline: none; appearance: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1) inset;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         select:focus, input:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
         select:disabled { opacity: 0.5; background-color: #cbd5e1; }
@@ -117,45 +117,51 @@
         .file-upload-wrapper input[type="file"] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; height: 100%; cursor: pointer;}
         .file-upload-text { color: var(--secondary); font-weight: 600; }
 
-        /* TOGGLE SWITCH (Contrat Validé) */
-        .switch { position: relative; display: inline-block; width: 66px; height: 36px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { 
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
-            background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 36px; 
-            border: 2px solid rgba(255,255,255,0.2);
+        /* COMPTEURS COMPACTS POUR LES TOURS (CASES VIDES) */
+        .tour-table { width: 100%; border-collapse: collapse; margin-bottom: 0.5rem; }
+        .tour-table th { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); background: transparent; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .tour-table td { padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; vertical-align: middle; }
+        .tour-table td:first-child { text-align: left; font-weight: 600; font-size: 0.95rem; color: white; width: 35%; line-height: 1.3;}
+        
+        .ctrl-cell { display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .btn-tiny { 
+            width: 32px; height: 32px; border-radius: 6px; border: none; 
+            font-weight: bold; color: white; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem; 
+            transition: transform 0.1s; 
         }
-        .slider:before { 
-            position: absolute; content: ""; height: 26px; width: 26px; left: 3px; bottom: 3px; 
-            background-color: var(--text-muted); transition: .3s; border-radius: 50%; 
-        }
-        input:checked + .slider { background-color: rgba(16, 185, 129, 0.2); border-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(30px); background-color: var(--success); box-shadow: 0 0 10px var(--success); }
-
-        /* COMPTEURS (NO REP) */
-        .counter-group {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem;
-        }
-        .counter-label { font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;}
-        .counter-controls { display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2); border-radius: 30px; padding: 4px; }
-        .btn-count {
-            width: 45px; height: 45px; border-radius: 50%; border: none;
-            font-size: 1.8rem; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        .btn-tiny:active { transform: scale(0.85); }
+        .btn-tiny.minus { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+        .btn-tiny.plus-val { background: var(--success); box-shadow: 0 2px 5px rgba(16, 185, 129, 0.3);}
+        .btn-tiny.plus-err { background: var(--danger); box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);}
+        
+        /* La fameuse "case vide" */
+        .val-tiny-input {
+            width: 44px; height: 36px;
+            background: #ffffff;
+            border: 2px solid transparent;
+            color: #0f172a;
+            font-weight: 800; font-size: 1.1rem;
+            text-align: center;
+            border-radius: 8px;
+            padding: 0; margin: 0;
+            -moz-appearance: textfield; /* Cache les flèches sur Firefox */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
             transition: transform 0.1s;
         }
-        .btn-count:active { transform: scale(0.9); }
-        .btn-minus { background-color: rgba(255,255,255,0.1); color: var(--text-muted); }
-        .btn-plus { background-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);}
-        .count-val { font-size: 1.5rem; font-weight: 800; width: 40px; text-align: center; color: white;}
+        .val-tiny-input:focus { border-color: var(--secondary); outline: none; }
+        .val-tiny-input::-webkit-outer-spin-button,
+        .val-tiny-input::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0; /* Cache les flèches sur Chrome/Safari */
+        }
+        .val-tiny-input.err { color: var(--danger); }
 
         /* TABLE PROF */
         .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-        table { width: 100%; border-collapse: collapse; background: var(--card-dark); font-size: 0.85rem;}
-        th, td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem; text-align: left; }
-        th { background-color: rgba(0,0,0,0.3); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem;}
-        td { color: var(--text-main); }
+        table.prof-table { width: 100%; border-collapse: collapse; background: var(--card-dark); font-size: 0.85rem;}
+        table.prof-table th, table.prof-table td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem; text-align: left; }
+        table.prof-table th { background-color: rgba(0,0,0,0.3); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem;}
+        table.prof-table td { color: var(--text-main); }
         .score-cell { font-family: monospace; font-size: 0.9rem; color: var(--primary); }
     </style>
 </head>
@@ -183,8 +189,8 @@
             <div class="card">
                 <h2>Accès Sécurisé</h2>
                 <label>Code Professeur :</label>
-                <!-- Code masqué dans l'UI et crypté dans le script -->
-                <input type="password" id="prof-code" placeholder="Entrez le code..." onkeypress="if(event.key === 'Enter') checkProf()">
+                <!-- Autocomplete bloqué et aucun indice sur le code -->
+                <input type="password" id="prof-code" placeholder="Code secret..." autocomplete="new-password" onkeypress="if(event.key === 'Enter') checkProf()">
                 <button class="btn-main prof" onclick="checkProf()">Valider</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
             </div>
@@ -215,8 +221,8 @@
                     <select id="filter-class" onchange="loadResults()"><option value="">Toutes les classes</option></select>
                 </div>
                 <div class="table-wrapper">
-                    <table id="results-table">
-                        <thead><tr><th>Classe</th><th>Athlète / Juge</th><th>Séance</th><th>Scores</th></tr></thead>
+                    <table class="prof-table" id="results-table">
+                        <thead><tr><th>Classe</th><th>Athlète / Juge</th><th>Séance</th><th>Scores Détaillés (Sur 5 Tours)</th></tr></thead>
                         <tbody id="results-body"></tbody>
                     </table>
                 </div>
@@ -270,7 +276,7 @@
         <!-- ================= VUE ÉLÈVE : ÉTAPE 1 (CONTRAT) ================= -->
         <div id="view-form-s1-setup" class="view">
             <h2 style="text-align: center; color: var(--primary);">📋 ÉTAPE 1 : LE CONTRAT</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Avant le départ, l'athlète annonce ses objectifs pour chaque bloc de travail.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Le juge enregistre l'objectif fixé par l'athlète.</p>
 
             <div class="card">
                 <h3 style="color: var(--secondary); margin-top: 0;">1. AIR SQUAT</h3>
@@ -279,7 +285,7 @@
                     <select id="setup-squat-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
                 </div>
                 <label>Objectif (Répétitions par tour) :</label>
-                <input type="number" id="setup-squat-target" placeholder="Ex: 15" min="1">
+                <input type="number" class="main-input" id="setup-squat-target" placeholder="Ex: 15" min="1">
             </div>
 
             <div class="card">
@@ -289,7 +295,7 @@
                     <select id="setup-plank-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
                 </div>
                 <label>Objectif (Secondes par tour) :</label>
-                <input type="number" id="setup-plank-target" placeholder="Ex: 30" min="1">
+                <input type="number" class="main-input" id="setup-plank-target" placeholder="Ex: 30" min="1">
             </div>
 
             <div class="card">
@@ -299,7 +305,7 @@
                     <select id="setup-push-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
                 </div>
                 <label>Objectif (Répétitions par tour) :</label>
-                <input type="number" id="setup-push-target" placeholder="Ex: 10" min="1">
+                <input type="number" class="main-input" id="setup-push-target" placeholder="Ex: 10" min="1">
             </div>
 
             <button class="btn-main" onclick="goToEval()">VALIDER LE CONTRAT ➡️</button>
@@ -308,15 +314,11 @@
 
         <!-- ================= VUE ÉLÈVE : ÉTAPE 2 (ÉVALUATION 5 TOURS) ================= -->
         <div id="view-form-s1-eval" class="view">
-            <h2 style="text-align: center; color: var(--primary);">🔥 ÉTAPE 2 : LE WOD (5 TOURS)</h2>
+            <h2 style="text-align: center; color: var(--primary);">🔥 ÉTAPE 2 : LE WOD</h2>
             
-            <!-- Résumé du contrat -->
-            <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(59, 130, 246, 0.4);">
-                <h3 style="margin-top:0; font-size:0.95rem; color: var(--text-muted); text-transform: uppercase;">Rappel du Contrat (Par tour) :</h3>
-                <div id="summary-contract" style="font-weight: 600; color: white; font-size: 0.95rem; line-height: 1.6;">
-                    <!-- Rempli en JS -->
-                </div>
-            </div>
+            <p style="text-align: center; color: var(--success); font-size: 0.9rem; margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.1); padding: 0.5rem; border-radius: 8px;">
+                💡 Remplissez les cases à l'aide des boutons <strong>+</strong> et <strong>-</strong>, ou touchez directement la case blanche pour taper le chiffre au clavier.
+            </p>
 
             <!-- Les 5 Tours (Générés dynamiquement en JS) -->
             <div id="tours-container"></div>
@@ -357,7 +359,7 @@
 
         // ================== ESPACE PROF ==================
         function checkProf() {
-            // Le code (CT2026) est masqué via encodage base64 ('Q1QyMDI2')
+            // Le mot de passe (CT2026) est masqué dans le code via encodage base64 ('Q1QyMDI2')
             if(btoa(document.getElementById('prof-code').value) === 'Q1QyMDI2') {
                 navTo('view-prof-dashboard');
                 fetchClassesForFilter();
@@ -484,38 +486,88 @@
         }
 
         // ================== LOGIQUE S1 (CONTRAT & TOURS) ==================
+        
+        // Nouvelle fonction pour manipuler la valeur de la case vide (Input type number)
         function updateCount(id, change) {
             const el = document.getElementById(id);
-            let val = parseInt(el.textContent) + change;
-            if(val < 0) val = 0;
+            let val = parseInt(el.value) || 0;
+            val += change;
+            if(val < 0) val = 0; // Pas de valeurs négatives
             
-            el.style.transform = "scale(1.3)";
+            el.value = val;
+            
+            // Petit effet visuel
+            el.style.transform = "scale(1.2)";
             setTimeout(() => el.style.transform = "scale(1)", 150);
-            el.textContent = val;
         }
 
         function renderTours() {
+            const sqT = parseInt(document.getElementById('setup-squat-target').value) || 0;
+            const plT = parseInt(document.getElementById('setup-plank-target').value) || 0;
+            const puT = parseInt(document.getElementById('setup-push-target').value) || 0;
+
             const container = document.getElementById('tours-container');
             container.innerHTML = '';
+            
             for(let i=1; i<=5; i++) {
                 container.innerHTML += `
-                    <div class="card" style="padding-bottom: 1rem;">
-                        <h3 style="margin-top:0; color:white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">TOUR ${i}</h3>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">
-                            <label style="margin:0; font-size:1.1rem; color:white;">✅ Contrat global rempli ?</label>
-                            <label class="switch">
-                                <input type="checkbox" id="t${i}-valide">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="counter-group norep">
-                            <span class="counter-label" style="color:var(--danger);">❌ Fautes (NO REP)</span>
-                            <div class="counter-controls">
-                                <button class="btn-count btn-minus" onclick="updateCount('t${i}-norep', -1)">-</button>
-                                <span class="count-val" id="t${i}-norep" style="color:var(--danger);">0</span>
-                                <button class="btn-count btn-plus" onclick="updateCount('t${i}-norep', 1)">+</button>
-                            </div>
-                        </div>
+                    <div class="card" style="padding: 1rem;">
+                        <h3 style="margin-top:0; color:var(--primary); font-size: 1.1rem; margin-bottom: 0.5rem; text-align:center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">TOUR ${i}</h3>
+                        <table class="tour-table">
+                            <tr>
+                                <th>Atelier</th>
+                                <th>✅ Fait</th>
+                                <th>❌ No Rep</th>
+                            </tr>
+                            <tr>
+                                <td>Squat<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${sqT}</span></td>
+                                <td>
+                                    <div class="ctrl-cell">
+                                        <button class="btn-tiny minus" onclick="updateCount('t${i}-sq-val', -1)">-</button>
+                                        <input type="number" class="val-tiny-input" id="t${i}-sq-val" placeholder="0">
+                                        <button class="btn-tiny plus-val" onclick="updateCount('t${i}-sq-val', 1)">+</button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="ctrl-cell">
+                                        <input type="number" class="val-tiny-input err" id="t${i}-sq-err" placeholder="0">
+                                        <button class="btn-tiny plus-err" onclick="updateCount('t${i}-sq-err', 1)">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Planche<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${plT}s</span></td>
+                                <td>
+                                    <div class="ctrl-cell">
+                                        <button class="btn-tiny minus" onclick="updateCount('t${i}-pl-val', -1)">-</button>
+                                        <input type="number" class="val-tiny-input" id="t${i}-pl-val" placeholder="0">
+                                        <button class="btn-tiny plus-val" onclick="updateCount('t${i}-pl-val', 1)">+</button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="ctrl-cell">
+                                        <input type="number" class="val-tiny-input err" id="t${i}-pl-err" placeholder="0">
+                                        <button class="btn-tiny plus-err" onclick="updateCount('t${i}-pl-err', 1)">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Push-Up<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${puT}</span></td>
+                                <td>
+                                    <div class="ctrl-cell">
+                                        <button class="btn-tiny minus" onclick="updateCount('t${i}-pu-val', -1)">-</button>
+                                        <input type="number" class="val-tiny-input" id="t${i}-pu-val" placeholder="0">
+                                        <button class="btn-tiny plus-val" onclick="updateCount('t${i}-pu-val', 1)">+</button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="ctrl-cell">
+                                        <input type="number" class="val-tiny-input err" id="t${i}-pu-err" placeholder="0">
+                                        <button class="btn-tiny plus-err" onclick="updateCount('t${i}-pu-err', 1)">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 `;
             }
@@ -528,17 +580,7 @@
 
             if(!sqT || !plT || !puT) return alert("❌ Merci de remplir les 3 objectifs du contrat avant de démarrer !");
 
-            const sqL = document.getElementById('setup-squat-lvl').value;
-            const plL = document.getElementById('setup-plank-lvl').value;
-            const puL = document.getElementById('setup-push-lvl').value;
-
-            document.getElementById('summary-contract').innerHTML = `
-                🏋️ Squat (${sqL}) : <span style="color:var(--primary)">${sqT} reps</span><br>
-                ⏱️ Planche (${plL}) : <span style="color:var(--primary)">${plT} secs</span><br>
-                💪 Push-Up (${puL}) : <span style="color:var(--primary)">${puT} reps</span>
-            `;
-
-            renderTours(); // Génère les 5 blocs de tours
+            renderTours(); 
             navTo('view-form-s1-eval');
         }
 
@@ -563,8 +605,19 @@
 
             for(let i=1; i<=5; i++) {
                 payload.tours.push({
-                    valide: document.getElementById(`t${i}-valide`).checked,
-                    norep: parseInt(document.getElementById(`t${i}-norep`).textContent)
+                    tour: i,
+                    squat: {
+                        fait: parseInt(document.getElementById(`t${i}-sq-val`).value) || 0,
+                        norep: parseInt(document.getElementById(`t${i}-sq-err`).value) || 0
+                    },
+                    plank: {
+                        fait: parseInt(document.getElementById(`t${i}-pl-val`).value) || 0,
+                        norep: parseInt(document.getElementById(`t${i}-pl-err`).value) || 0
+                    },
+                    pushup: {
+                        fait: parseInt(document.getElementById(`t${i}-pu-val`).value) || 0,
+                        norep: parseInt(document.getElementById(`t${i}-pu-err`).value) || 0
+                    }
                 });
             }
 
@@ -572,7 +625,7 @@
                 await db.collection('resultats').add(payload);
                 alert("✅ Résultats envoyés avec succès ! Beau travail.");
                 
-                // Reset du setup pour le prochain athlète
+                // Reset setup
                 document.getElementById('setup-squat-target').value = '';
                 document.getElementById('setup-plank-target').value = '';
                 document.getElementById('setup-push-target').value = '';
@@ -608,12 +661,30 @@
                     
                     let htmlScore = "";
                     if(d.seance === "S1_5_TOURS" && d.tours) {
-                        let toursValides = d.tours.filter(t => t.valide).length;
-                        let totalNorep = d.tours.reduce((sum, t) => sum + t.norep, 0);
+                        let sumSqFait = 0, sumSqNorep = 0;
+                        let sumPlFait = 0, sumPlNorep = 0;
+                        let sumPuFait = 0, sumPuNorep = 0;
+                        
+                        d.tours.forEach(t => {
+                            sumSqFait += t.squat.fait; sumSqNorep += t.squat.norep;
+                            sumPlFait += t.plank.fait; sumPlNorep += t.plank.norep;
+                            sumPuFait += t.pushup.fait; sumPuNorep += t.pushup.norep;
+                        });
+                        
+                        let targetSq = d.contrat.squat.target * 5;
+                        let targetPl = d.contrat.plank.target * 5;
+                        let targetPu = d.contrat.pushup.target * 5;
+
                         htmlScore = `
-                            <span style="color:var(--text-muted); font-size:0.75rem;">Contrat: SQ(${d.contrat.squat.lvl}-${d.contrat.squat.target}) | PL(${d.contrat.plank.lvl}-${d.contrat.plank.target}) | PU(${d.contrat.pushup.lvl}-${d.contrat.pushup.target})</span><br>
-                            <span style="color:var(--success); font-weight:bold;">✅ Validés : ${toursValides} / 5</span><br>
-                            <span style="color:var(--danger); font-weight:bold;">❌ No Rep : ${totalNorep}</span>
+                            <div style="font-size:0.8rem; margin-bottom: 6px; color:var(--text-muted);">
+                                Obj par tour: SQ(${d.contrat.squat.target}) | PL(${d.contrat.plank.target}) | PU(${d.contrat.pushup.target})
+                            </div>
+                            <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px;">
+                                <tr><th style="padding:4px;text-align:left;">Atelier</th><th style="padding:4px;">✅ Total</th><th style="padding:4px;">❌ Fautes</th></tr>
+                                <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center;">${sumSqFait}/${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center;">${sumPlFait}/${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center;">${sumPuFait}/${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
+                            </table>
                         `;
                     }
 
@@ -622,7 +693,7 @@
                             <td><strong>${d.classe}</strong></td>
                             <td><span style="color:var(--primary); font-weight:bold;">A: ${d.athlete}</span><br><span style="color:var(--text-muted); font-size:0.75rem;">J: ${d.juge}</span></td>
                             <td>${d.seance}<br><span style="color:var(--text-muted); font-size:0.75rem;">${date}</span></td>
-                            <td class="score-cell">${htmlScore}</td>
+                            <td class="score-cell" style="padding: 0.5rem;">${htmlScore}</td>
                         </tr>
                     `;
                 });
