@@ -714,6 +714,95 @@
                 </td></tr>`;
             }
         }
+        // ================== AFFICHER RESULTATS PROF ==================
+        async function loadResults() {
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">⏳ Chargement...</td></tr>';
+            const classFilter = document.getElementById('filter-class').value;
+            
+            // ⚠️ Test 1 : J'ai enlevé le .orderBy('timestamp', 'desc') pour voir si c'est l'Index qui bloque
+            let query = db.collection('resultats');
+            if(classFilter) {
+                query = query.where('classe', '==', classFilter);
+            }
+
+            try {
+                const snapshot = await query.get();
+                tbody.innerHTML = '';
+                if(snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Aucun résultat pour le moment.</td></tr>';
+                    return;
+                }
+                
+                // Tri manuel en Javascript au lieu de le demander à Firebase (contourne le problème d'Index)
+                let allDocs = [];
+                snapshot.forEach(doc => allDocs.push(doc.data()));
+                allDocs.sort((a, b) => b.timestamp - a.timestamp);
+
+                allDocs.forEach(d => {
+                    const date = d.timestamp.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+                    
+                    let htmlScore = "";
+                    if(d.seance === "S1_5_TOURS" && d.tours) {
+                        let sumSqFait = 0, sumSqNorep = 0;
+                        let sumPlFait = 0, sumPlNorep = 0;
+                        let sumPuFait = 0, sumPuNorep = 0;
+                        
+                        let toursDetailsHtml = `<table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:0.5rem; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding:4px;">Tour</th><th style="padding:4px;">Squat</th><th style="padding:4px;">Planche</th><th style="padding:4px;">Push-Up</th></tr>`;
+                        
+                        d.tours.forEach(t => {
+                            sumSqFait += t.squat.fait; sumSqNorep += t.squat.norep;
+                            sumPlFait += t.plank.fait; sumPlNorep += t.plank.norep;
+                            sumPuFait += t.pushup.fait; sumPuNorep += t.pushup.norep;
+                            
+                            toursDetailsHtml += `<tr>
+                                <td style="padding:2px; text-align:center; color:white;">T${t.tour}</td>
+                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.squat.fait}</span>|<span style="color:var(--danger)">${t.squat.norep}</span></td>
+                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.plank.fait}</span>|<span style="color:var(--danger)">${t.plank.norep}</span></td>
+                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.pushup.fait}</span>|<span style="color:var(--danger)">${t.pushup.norep}</span></td>
+                            </tr>`;
+                        });
+                        toursDetailsHtml += `</table>`;
+                        
+                        let targetSq = d.contrat.squat.target * 5;
+                        let targetPl = d.contrat.plank.target * 5;
+                        let targetPu = d.contrat.pushup.target * 5;
+
+                        htmlScore = `
+                            <div style="font-size:0.8rem; margin-bottom: 6px; color:var(--text-muted);">
+                                Obj par tour: SQ(${d.contrat.squat.target}) | PL(${d.contrat.plank.target}) | PU(${d.contrat.pushup.target})
+                            </div>
+                            <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:0.5rem;">
+                                <tr><th style="padding:4px;text-align:left;">Atelier</th><th style="padding:4px;">✅ Total</th><th style="padding:4px;">❌ Fautes</th></tr>
+                                <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center; color:var(--success);">${sumSqFait} / ${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center; color:var(--success);">${sumPlFait} / ${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center; color:var(--success);">${sumPuFait} / ${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
+                            </table>
+                            <details>
+                                <summary style="cursor:pointer; color:var(--secondary); font-size:0.8rem; font-weight:bold;">🔍 Voir le détail des 5 tours</summary>
+                                ${toursDetailsHtml}
+                            </details>
+                        `;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${d.classe}</strong></td>
+                            <td><span style="color:var(--primary); font-weight:bold;">A: ${d.athlete}</span><br><span style="color:var(--text-muted); font-size:0.75rem;">J: ${d.juge}</span></td>
+                            <td>${d.seance}<br><span style="color:var(--text-muted); font-size:0.75rem;">${date}</span></td>
+                            <td class="score-cell" style="padding: 0.5rem;">${htmlScore}</td>
+                        </tr>
+                    `;
+                });
+            } catch(e) {
+                // Affichage brut de l'erreur (sans la cacher)
+                tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger); text-align:center;">
+                    🚨 Erreur réseau: ${e.message}<br><br>
+                    <small>Code erreur: ${e.code}</small>
+                </td></tr>`;
+            }
+        }
     </script>
 </body>
 </html>
