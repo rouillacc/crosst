@@ -145,14 +145,14 @@
             text-align: center;
             border-radius: 8px;
             padding: 0; margin: 0;
-            -moz-appearance: textfield; /* Cache les flèches sur Firefox */
+            -moz-appearance: textfield; 
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
             transition: transform 0.1s;
         }
         .val-tiny-input:focus { border-color: var(--secondary); outline: none; }
         .val-tiny-input::-webkit-outer-spin-button,
         .val-tiny-input::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0; /* Cache les flèches sur Chrome/Safari */
+            -webkit-appearance: none; margin: 0; 
         }
         .val-tiny-input.err { color: var(--danger); }
 
@@ -189,8 +189,8 @@
             <div class="card">
                 <h2>Accès Sécurisé</h2>
                 <label>Code Professeur :</label>
-                <!-- Autocomplete bloqué et aucun indice sur le code -->
-                <input type="password" id="prof-code" placeholder="Code secret..." autocomplete="new-password" onkeypress="if(event.key === 'Enter') checkProf()">
+                <!-- Code hyper-sécurisé : autocomplete bloqué, le champ se vide au clic -->
+                <input type="password" id="prof-code" placeholder="Entrez le code secret..." autocomplete="new-password" onfocus="this.value=''" onkeypress="if(event.key === 'Enter') checkProf()">
                 <button class="btn-main prof" onclick="checkProf()">Valider</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
             </div>
@@ -316,8 +316,8 @@
         <div id="view-form-s1-eval" class="view">
             <h2 style="text-align: center; color: var(--primary);">🔥 ÉTAPE 2 : LE WOD</h2>
             
-            <p style="text-align: center; color: var(--success); font-size: 0.9rem; margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.1); padding: 0.5rem; border-radius: 8px;">
-                💡 Remplissez les cases à l'aide des boutons <strong>+</strong> et <strong>-</strong>, ou touchez directement la case blanche pour taper le chiffre au clavier.
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 8px;">
+                💡 Touchez les cases blanches pour taper le score, ou utilisez les boutons <strong>+</strong> et <strong>-</strong>.
             </p>
 
             <!-- Les 5 Tours (Générés dynamiquement en JS) -->
@@ -487,7 +487,6 @@
 
         // ================== LOGIQUE S1 (CONTRAT & TOURS) ==================
         
-        // Nouvelle fonction pour manipuler la valeur de la case vide (Input type number)
         function updateCount(id, change) {
             const el = document.getElementById(id);
             let val = parseInt(el.value) || 0;
@@ -496,7 +495,7 @@
             
             el.value = val;
             
-            // Petit effet visuel
+            // Animation au toucher
             el.style.transform = "scale(1.2)";
             setTimeout(() => el.style.transform = "scale(1)", 150);
         }
@@ -516,21 +515,21 @@
                         <table class="tour-table">
                             <tr>
                                 <th>Atelier</th>
-                                <th>✅ Fait</th>
-                                <th>❌ No Rep</th>
+                                <th>✅ Répétitions (Fait)</th>
+                                <th>❌ No Rep (Faute)</th>
                             </tr>
                             <tr>
                                 <td>Squat<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${sqT}</span></td>
                                 <td>
                                     <div class="ctrl-cell">
                                         <button class="btn-tiny minus" onclick="updateCount('t${i}-sq-val', -1)">-</button>
-                                        <input type="number" class="val-tiny-input" id="t${i}-sq-val" placeholder="0">
+                                        <input type="number" class="val-tiny-input" id="t${i}-sq-val" placeholder="">
                                         <button class="btn-tiny plus-val" onclick="updateCount('t${i}-sq-val', 1)">+</button>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="ctrl-cell">
-                                        <input type="number" class="val-tiny-input err" id="t${i}-sq-err" placeholder="0">
+                                        <input type="number" class="val-tiny-input err" id="t${i}-sq-err" placeholder="">
                                         <button class="btn-tiny plus-err" onclick="updateCount('t${i}-sq-err', 1)">+</button>
                                     </div>
                                 </td>
@@ -540,13 +539,13 @@
                                 <td>
                                     <div class="ctrl-cell">
                                         <button class="btn-tiny minus" onclick="updateCount('t${i}-pl-val', -1)">-</button>
-                                        <input type="number" class="val-tiny-input" id="t${i}-pl-val" placeholder="0">
+                                        <input type="number" class="val-tiny-input" id="t${i}-pl-val" placeholder="">
                                         <button class="btn-tiny plus-val" onclick="updateCount('t${i}-pl-val', 1)">+</button>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="ctrl-cell">
-                                        <input type="number" class="val-tiny-input err" id="t${i}-pl-err" placeholder="0">
+                                        <input type="number" class="val-tiny-input err" id="t${i}-pl-err" placeholder="">
                                         <button class="btn-tiny plus-err" onclick="updateCount('t${i}-pl-err', 1)">+</button>
                                     </div>
                                 </td>
@@ -556,13 +555,13 @@
                                 <td>
                                     <div class="ctrl-cell">
                                         <button class="btn-tiny minus" onclick="updateCount('t${i}-pu-val', -1)">-</button>
-                                        <input type="number" class="val-tiny-input" id="t${i}-pu-val" placeholder="0">
+                                        <input type="number" class="val-tiny-input" id="t${i}-pu-val" placeholder="">
                                         <button class="btn-tiny plus-val" onclick="updateCount('t${i}-pu-val', 1)">+</button>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="ctrl-cell">
-                                        <input type="number" class="val-tiny-input err" id="t${i}-pu-err" placeholder="0">
+                                        <input type="number" class="val-tiny-input err" id="t${i}-pu-err" placeholder="">
                                         <button class="btn-tiny plus-err" onclick="updateCount('t${i}-pu-err', 1)">+</button>
                                     </div>
                                 </td>
@@ -665,11 +664,23 @@
                         let sumPlFait = 0, sumPlNorep = 0;
                         let sumPuFait = 0, sumPuNorep = 0;
                         
+                        // Génération du tableau détaillé caché (Tours 1 à 5)
+                        let toursDetailsHtml = `<table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:0.5rem; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding:4px;">Tour</th><th style="padding:4px;">Squat</th><th style="padding:4px;">Planche</th><th style="padding:4px;">Push-Up</th></tr>`;
+                        
                         d.tours.forEach(t => {
                             sumSqFait += t.squat.fait; sumSqNorep += t.squat.norep;
                             sumPlFait += t.plank.fait; sumPlNorep += t.plank.norep;
                             sumPuFait += t.pushup.fait; sumPuNorep += t.pushup.norep;
+                            
+                            toursDetailsHtml += `<tr>
+                                <td style="padding:2px; text-align:center; color:white;">T${t.tour}</td>
+                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.squat.fait}</span>|<span style="color:var(--danger)">${t.squat.norep}</span></td>
+                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.plank.fait}</span>|<span style="color:var(--danger)">${t.plank.norep}</span></td>
+                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.pushup.fait}</span>|<span style="color:var(--danger)">${t.pushup.norep}</span></td>
+                            </tr>`;
                         });
+                        toursDetailsHtml += `</table>`;
                         
                         let targetSq = d.contrat.squat.target * 5;
                         let targetPl = d.contrat.plank.target * 5;
@@ -679,12 +690,16 @@
                             <div style="font-size:0.8rem; margin-bottom: 6px; color:var(--text-muted);">
                                 Obj par tour: SQ(${d.contrat.squat.target}) | PL(${d.contrat.plank.target}) | PU(${d.contrat.pushup.target})
                             </div>
-                            <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px;">
+                            <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:0.5rem;">
                                 <tr><th style="padding:4px;text-align:left;">Atelier</th><th style="padding:4px;">✅ Total</th><th style="padding:4px;">❌ Fautes</th></tr>
-                                <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center;">${sumSqFait}/${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
-                                <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center;">${sumPlFait}/${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
-                                <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center;">${sumPuFait}/${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center; color:var(--success);">${sumSqFait} / ${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center; color:var(--success);">${sumPlFait} / ${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
+                                <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center; color:var(--success);">${sumPuFait} / ${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
                             </table>
+                            <details>
+                                <summary style="cursor:pointer; color:var(--secondary); font-size:0.8rem; font-weight:bold;">🔍 Voir le détail des 5 tours</summary>
+                                ${toursDetailsHtml}
+                            </details>
                         `;
                     }
 
