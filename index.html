@@ -234,7 +234,7 @@
                 <label>2. Fichier CSV Pronote :</label>
                 <div class="file-upload-wrapper">
                     <input type="file" id="csv-file" accept=".csv" onchange="handleCSVUpload(event)">
-                    <div class="file-upload-text" id="upload-text">📁 Cliquez pour choisir un fichier .csv</div>
+                    <div class="file-upload-text" id="upload-text">📁 Cliquez pour choisir le fichier Pronote</div>
                 </div>
                 
                 <!-- Prévisualisation des élèves extraits -->
@@ -434,7 +434,7 @@
             }
         }
 
-        // LECTURE DU FICHIER CSV PRONOTE
+        // LECTURE DU FICHIER CSV PRONOTE (Adapté au nouveau format)
         function handleCSVUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -447,15 +447,19 @@
                 const lines = text.split('\n');
                 extractedStudents = [];
                 
-                // Analyse simple du CSV (séparateur point-virgule)
+                // Analyse du CSV Pronote (séparateur point-virgule)
                 for(let i = 1; i < lines.length; i++) { // On saute la ligne 0 (entêtes)
+                    if (lines[i].trim() === "") continue; // Ignorer les lignes vides
+                    
                     const cols = lines[i].split(';');
-                    if(cols.length >= 2) {
-                        // Nettoyage des guillemets éventuels
-                        const nom = cols[0].replace(/"/g, '').trim();
-                        const prenom = cols[1].replace(/"/g, '').trim();
-                        if (nom && prenom) {
-                            extractedStudents.push(`${nom} ${prenom}`);
+                    
+                    if (cols.length >= 1) {
+                        // Dans Pronote, le Nom et Prénom sont dans la 1ère colonne, ex: "AMIRAULT Evann"
+                        // On enlève les guillemets et on supprime les espaces superflus
+                        const nomPrenom = cols[0].replace(/"/g, '').trim();
+                        
+                        if (nomPrenom !== "") {
+                            extractedStudents.push(nomPrenom);
                         }
                     }
                 }
@@ -471,8 +475,9 @@
                     document.getElementById('btn-save-class').style.display = "block";
                 }
             };
-            // Lecture en ISO-8859-1 car Pronote exporte souvent sous cet encodage (caractères français)
-            reader.readAsText(file, 'ISO-8859-1'); 
+            
+            // UTF-8 gère parfaitement les accents comme dans "Maëna"
+            reader.readAsText(file, 'UTF-8'); 
         }
 
         async function saveClassToFirebase() {
@@ -489,7 +494,7 @@
                 // Reset form
                 document.getElementById('class-name-input').value = '';
                 document.getElementById('csv-file').value = '';
-                document.getElementById('upload-text').innerHTML = "📁 Cliquez pour choisir un fichier .csv";
+                document.getElementById('upload-text').innerHTML = "📁 Cliquez pour choisir le fichier Pronote";
                 document.getElementById('preview-students').style.display = "none";
                 btn.style.display = "none";
                 btn.textContent = "Sauvegarder la classe";
