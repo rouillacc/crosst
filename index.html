@@ -634,13 +634,12 @@
             }
         }
 
-        // ================== AFFICHER RESULTATS PROF (SANS ORDERBY pour éviter erreur index) ==================
+        // ================== AFFICHER RESULTATS PROF ==================
         async function loadResults() {
             const tbody = document.getElementById('results-body');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">⏳ Chargement...</td></tr>';
             const classFilter = document.getElementById('filter-class').value;
             
-            // Requête brute sans orderBy pour contourner le blocage Firebase Index
             let query = db.collection('resultats');
             if(classFilter) {
                 query = query.where('classe', '==', classFilter);
@@ -654,11 +653,8 @@
                     return;
                 }
                 
-                // Tri manuel en Javascript
                 let allResults = [];
-                snapshot.forEach(doc => {
-                    allResults.push(doc.data());
-                });
+                snapshot.forEach(doc => { allResults.push(doc.data()); });
                 allResults.sort((a, b) => b.timestamp - a.timestamp);
 
                 allResults.forEach(d => {
@@ -666,47 +662,58 @@
                     const date = dateObj.toLocaleDateString('fr-FR') + ' ' + dateObj.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
                     
                     let htmlScore = "";
-                    if(d.seance === "S1_5_TOURS" && d.tours) {
-                        let sumSqFait = 0, sumSqNorep = 0;
-                        let sumPlFait = 0, sumPlNorep = 0;
-                        let sumPuFait = 0, sumPuNorep = 0;
+                    
+                    if(d.seance === "S1_5_TOURS" && d.tours && d.tours.length > 0) {
                         
-                        let toursDetailsHtml = `<table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:0.5rem; border-collapse: collapse;">
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding:4px;">Tour</th><th style="padding:4px;">Squat</th><th style="padding:4px;">Planche</th><th style="padding:4px;">Push-Up</th></tr>`;
-                        
-                        d.tours.forEach(t => {
-                            sumSqFait += t.squat.fait; sumSqNorep += t.squat.norep;
-                            sumPlFait += t.plank.fait; sumPlNorep += t.plank.norep;
-                            sumPuFait += t.pushup.fait; sumPuNorep += t.pushup.norep;
+                        // SÉCURITÉ ANTI-PLANTAGE
+                        if (!d.tours[0].squat) {
+                            htmlScore = `<span style="color:var(--text-muted); font-size: 0.8rem;">Ancien test (Format non compatible)</span>`;
+                        } else {
+                            let sumSqFait = 0, sumSqNorep = 0;
+                            let sumPlFait = 0, sumPlNorep = 0;
+                            let sumPuFait = 0, sumPuNorep = 0;
                             
-                            toursDetailsHtml += `<tr>
-                                <td style="padding:2px; text-align:center; color:white;">T${t.tour}</td>
-                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.squat.fait}</span>|<span style="color:var(--danger)">${t.squat.norep}</span></td>
-                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.plank.fait}</span>|<span style="color:var(--danger)">${t.plank.norep}</span></td>
-                                <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${t.pushup.fait}</span>|<span style="color:var(--danger)">${t.pushup.norep}</span></td>
-                            </tr>`;
-                        });
-                        toursDetailsHtml += `</table>`;
-                        
-                        let targetSq = d.contrat.squat.target * 5;
-                        let targetPl = d.contrat.plank.target * 5;
-                        let targetPu = d.contrat.pushup.target * 5;
+                            let toursDetailsHtml = `<table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:0.5rem; border-collapse: collapse;">
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding:4px;">Tour</th><th style="padding:4px;">Squat</th><th style="padding:4px;">Planche</th><th style="padding:4px;">Push-Up</th></tr>`;
+                            
+                            d.tours.forEach(t => {
+                                const sq = t.squat || {fait:0, norep:0};
+                                const pl = t.plank || {fait:0, norep:0};
+                                const pu = t.pushup || {fait:0, norep:0};
 
-                        htmlScore = `
-                            <div style="font-size:0.8rem; margin-bottom: 6px; color:var(--text-muted);">
-                                Obj par tour: SQ(${d.contrat.squat.target}) | PL(${d.contrat.plank.target}) | PU(${d.contrat.pushup.target})
-                            </div>
-                            <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:0.5rem;">
-                                <tr><th style="padding:4px;text-align:left;">Atelier</th><th style="padding:4px;">✅ Total</th><th style="padding:4px;">❌ Fautes</th></tr>
-                                <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center; color:var(--success);">${sumSqFait} / ${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
-                                <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center; color:var(--success);">${sumPlFait} / ${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
-                                <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center; color:var(--success);">${sumPuFait} / ${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
-                            </table>
-                            <details>
-                                <summary style="cursor:pointer; color:var(--secondary); font-size:0.8rem; font-weight:bold;">🔍 Voir le détail des 5 tours</summary>
-                                ${toursDetailsHtml}
-                            </details>
-                        `;
+                                sumSqFait += sq.fait; sumSqNorep += sq.norep;
+                                sumPlFait += pl.fait; sumPlNorep += pl.norep;
+                                sumPuFait += pu.fait; sumPuNorep += pu.norep;
+                                
+                                toursDetailsHtml += `<tr>
+                                    <td style="padding:2px; text-align:center; color:white;">T${t.tour}</td>
+                                    <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${sq.fait}</span>|<span style="color:var(--danger)">${sq.norep}</span></td>
+                                    <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${pl.fait}</span>|<span style="color:var(--danger)">${pl.norep}</span></td>
+                                    <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${pu.fait}</span>|<span style="color:var(--danger)">${pu.norep}</span></td>
+                                </tr>`;
+                            });
+                            toursDetailsHtml += `</table>`;
+                            
+                            let targetSq = d.contrat.squat.target * 5;
+                            let targetPl = d.contrat.plank.target * 5;
+                            let targetPu = d.contrat.pushup.target * 5;
+
+                            htmlScore = `
+                                <div style="font-size:0.8rem; margin-bottom: 6px; color:var(--text-muted);">
+                                    Obj par tour: SQ(${d.contrat.squat.target}) | PL(${d.contrat.plank.target}) | PU(${d.contrat.pushup.target})
+                                </div>
+                                <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:0.5rem;">
+                                    <tr><th style="padding:4px;text-align:left;">Atelier</th><th style="padding:4px;">✅ Total</th><th style="padding:4px;">❌ Fautes</th></tr>
+                                    <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center; color:var(--success);">${sumSqFait} / ${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
+                                    <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center; color:var(--success);">${sumPlFait} / ${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
+                                    <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center; color:var(--success);">${sumPuFait} / ${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
+                                </table>
+                                <details>
+                                    <summary style="cursor:pointer; color:var(--secondary); font-size:0.8rem; font-weight:bold;">🔍 Voir le détail des 5 tours</summary>
+                                    ${toursDetailsHtml}
+                                </details>
+                            `;
+                        }
                     }
 
                     tbody.innerHTML += `
