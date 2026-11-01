@@ -14,12 +14,11 @@
     
     <style>
         :root {
-            /* Thème "Dark Sport" ultra moderne */
             --bg-dark: #0f172a;
             --card-dark: #1e293b;
-            --primary: #f97316; /* Orange CrossFit */
+            --primary: #f97316; 
             --primary-glow: rgba(249, 115, 22, 0.4);
-            --secondary: #3b82f6; /* Bleu dynamique */
+            --secondary: #3b82f6;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --danger: #ef4444;
@@ -34,50 +33,34 @@
         }
         
         body { 
-            margin: 0; 
-            padding: 0; 
-            background-color: var(--bg-dark); 
-            color: var(--text-main); 
+            margin: 0; padding: 0; 
+            background-color: var(--bg-dark); color: var(--text-main); 
             min-height: 100vh;
         }
 
-        /* HEADER GLASSMORPHISM */
+        /* HEADER */
         header {
             background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 1.2rem;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 1.2rem; text-align: center;
+            position: sticky; top: 0; z-index: 100;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         header h1 { 
-            margin: 0; 
-            font-size: 1.4rem; 
-            font-weight: 800; 
-            text-transform: uppercase; 
+            margin: 0; font-size: 1.4rem; font-weight: 800; text-transform: uppercase; 
             letter-spacing: 1px;
             background: linear-gradient(90deg, var(--primary), #fbbf24);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
         .container { 
-            padding: 1.5rem 1rem; 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding-bottom: 5rem;
+            padding: 1.5rem 1rem; max-width: 600px; margin: 0 auto; padding-bottom: 5rem;
         }
         
-        /* GESTION DES VUES avec animation douce */
+        /* GESTION DES VUES */
         .view { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .view.active { display: block; }
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* TYPOGRAPHIE & CARTES */
         h2 { font-weight: 800; font-size: 1.3rem; margin-top: 0; margin-bottom: 1.5rem; color: white;}
@@ -86,8 +69,7 @@
         .card {
             background: var(--card-dark);
             border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 1.5rem; margin-bottom: 1.5rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255,255,255,0.05);
         }
@@ -96,41 +78,35 @@
         .btn-main {
             display: block; width: 100%; padding: 1.2rem; margin-bottom: 1rem;
             background: linear-gradient(135deg, var(--primary), #ea580c);
-            color: white; border: none;
-            border-radius: 12px; font-size: 1.1rem; font-weight: 800;
+            color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800;
             box-shadow: 0 4px 15px var(--primary-glow);
-            cursor: pointer; text-align: center;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            transition: transform 0.1s, box-shadow 0.1s;
+            cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;
+            transition: transform 0.1s;
         }
         .btn-main:active { transform: scale(0.98); }
-        .btn-main.prof { 
-            background: linear-gradient(135deg, var(--secondary), #2563eb); 
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); 
-        }
+        .btn-main.prof { background: linear-gradient(135deg, var(--secondary), #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
         .btn-secondary {
             display: block; width: 100%; padding: 1rem; margin-top: 1rem;
             background-color: transparent; color: var(--text-muted); 
-            border: 2px solid var(--text-muted);
-            border-radius: 12px; font-size: 1rem; font-weight: 600;
-            transition: 0.2s;
+            border: 2px solid var(--text-muted); border-radius: 12px; font-size: 1rem; font-weight: 600;
         }
-        .btn-secondary:active { background-color: rgba(255,255,255,0.1); }
 
         /* INPUTS & SELECTS */
         select, input[type="text"], input[type="password"] {
             width: 100%; padding: 1rem; margin-bottom: 1.5rem;
-            border: 2px solid rgba(255,255,255,0.1); 
-            border-radius: 12px; font-size: 1rem;
-            background-color: rgba(0,0,0,0.2);
-            color: white; font-weight: 600;
-            outline: none; transition: border-color 0.2s;
-            appearance: none;
+            border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 1rem;
+            background-color: rgba(0,0,0,0.2); color: white; font-weight: 600;
+            outline: none; appearance: none;
+        }
+        input[type="number"] {
+            width: 100%; padding: 1rem; margin-bottom: 1.5rem;
+            border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 1.1rem;
+            background-color: rgba(0,0,0,0.2); color: white; font-weight: 800; text-align: center;
+            outline: none;
         }
         select:focus, input:focus { border-color: var(--secondary); }
         select:disabled { opacity: 0.5; }
         
-        /* Personnalisation de la flèche du select */
         .select-wrapper { position: relative; }
         .select-wrapper::after {
             content: '▼'; font-size: 0.8rem; color: var(--text-muted);
@@ -142,48 +118,43 @@
             position: relative; overflow: hidden; display: inline-block; width: 100%;
             background: rgba(59, 130, 246, 0.1); border: 2px dashed var(--secondary);
             border-radius: 12px; padding: 2rem 1rem; text-align: center; margin-bottom: 1rem;
-            cursor: pointer;
         }
-        .file-upload-wrapper input[type="file"] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%;
-        }
+        .file-upload-wrapper input[type="file"] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; height: 100%; }
         .file-upload-text { color: var(--secondary); font-weight: 600; }
 
-        /* COMPTEURS (ÉVALUATION) */
-        .exo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;}
-        .exo-header h3 { margin: 0; color: white; font-size: 1.1rem; }
-        .level-select { width: auto; padding: 0.5rem; margin: 0; background: var(--secondary); border: none; font-size: 0.9rem;}
+        /* TOGGLE SWITCH (Contrat Validé) */
+        .switch { position: relative; display: inline-block; width: 66px; height: 36px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { 
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+            background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 36px; 
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .slider:before { 
+            position: absolute; content: ""; height: 26px; width: 26px; left: 3px; bottom: 3px; 
+            background-color: var(--text-muted); transition: .3s; border-radius: 50%; 
+        }
+        input:checked + .slider { background-color: rgba(16, 185, 129, 0.2); border-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(30px); background-color: var(--success); box-shadow: 0 0 10px var(--success); }
 
+        /* COMPTEURS (NO REP) */
         .counter-group {
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem;
+            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem;
         }
-        .counter-group.norep { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
-        
         .counter-label { font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;}
-        
         .counter-controls { display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2); border-radius: 30px; padding: 4px; }
         .btn-count {
             width: 45px; height: 45px; border-radius: 50%; border: none;
-            font-size: 1.8rem; font-weight: bold; color: white;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 1.8rem; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;
             transition: transform 0.1s;
         }
         .btn-count:active { transform: scale(0.9); }
         .btn-minus { background-color: rgba(255,255,255,0.1); color: var(--text-muted); }
-        .btn-plus { background-color: var(--success); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);}
-        .norep .btn-plus { background-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);}
+        .btn-plus { background-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);}
         .count-val { font-size: 1.5rem; font-weight: 800; width: 40px; text-align: center; color: white;}
 
-        /* CHRONO */
-        #emom-timer {
-            background: black; color: white; font-size: 3rem; font-weight: 800;
-            text-align: center; padding: 1.5rem; border-radius: 20px; margin-bottom: 1.5rem;
-            box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
-            font-variant-numeric: tabular-nums;
-            transition: background-color 0.3s;
-        }
-        
         /* TABLE PROF */
         .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         table { width: 100%; border-collapse: collapse; background: var(--card-dark); font-size: 0.85rem;}
@@ -217,7 +188,8 @@
             <div class="card">
                 <h2>Accès Sécurisé</h2>
                 <label>Code Professeur :</label>
-                <input type="password" id="prof-code" placeholder="Entrez le code CT2026..." onkeypress="if(event.key === 'Enter') checkProf()">
+                <!-- Le placeholder ne dévoile plus le code, et le script est crypté -->
+                <input type="password" id="prof-code" placeholder="Entrez le code d'accès..." onkeypress="if(event.key === 'Enter') checkProf()">
                 <button class="btn-main prof" onclick="checkProf()">Valider</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
             </div>
@@ -227,7 +199,7 @@
         <div id="view-prof-dashboard" class="view">
             
             <div class="card">
-                <h2>📥 Importer une classe (Pronote)</h2>
+                <h2>📥 Importer une classe</h2>
                 <label>1. Nom de la classe :</label>
                 <input type="text" id="class-name-input" placeholder="Ex: 3ème A">
                 
@@ -237,7 +209,6 @@
                     <div class="file-upload-text" id="upload-text">📁 Cliquez pour choisir le fichier Pronote</div>
                 </div>
                 
-                <!-- Prévisualisation des élèves extraits -->
                 <div id="preview-students" style="display:none; margin-bottom:1rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; font-size:0.85rem;"></div>
 
                 <button class="btn-main" id="btn-save-class" style="display:none;" onclick="saveClassToFirebase()">Sauvegarder la classe</button>
@@ -294,100 +265,69 @@
                     <span style="color:var(--text-muted); font-size:0.9rem;">Athlète :</span> <strong id="display-athlete" style="color:var(--primary);"></strong>
                 </div>
                 
-                <button class="btn-main" onclick="startSession('S1_EMOM')">🏋️ EMOM 5 Min (S1)</button>
+                <button class="btn-main" onclick="navTo('view-form-s1-setup')">🏋️ SÉANCE 1 : Les 5 Tours</button>
                 <button class="btn-main" style="background: rgba(255,255,255,0.1); color: var(--text-muted); box-shadow: none;" disabled>🔜 Éval Finale (Bientôt)</button>
                 
                 <button class="btn-secondary" onclick="navTo('view-student-setup')">Changer les rôles</button>
             </div>
         </div>
 
-        <!-- ================= VUE ÉLÈVE : FORMULAIRE S1 ================= -->
-        <div id="view-form-s1" class="view">
-            <h2 style="text-align: center; color: var(--primary);">WOD EMOM 5 MIN</h2>
+        <!-- ================= VUE ÉLÈVE : ÉTAPE 1 (CONTRAT) ================= -->
+        <div id="view-form-s1-setup" class="view">
+            <h2 style="text-align: center; color: var(--primary);">📋 ÉTAPE 1 : LE CONTRAT</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Avant le départ, le juge valide les choix de l'athlète.</p>
+
+            <div class="card">
+                <h3 style="color: var(--secondary); margin-top: 0;">1. AIR SQUAT</h3>
+                <label>Niveau choisi :</label>
+                <div class="select-wrapper">
+                    <select id="setup-squat-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
+                </div>
+                <label>Objectif (Répétitions par tour) :</label>
+                <input type="number" id="setup-squat-target" placeholder="Ex: 15" min="1">
+            </div>
+
+            <div class="card">
+                <h3 style="color: var(--secondary); margin-top: 0;">2. PLANCHE</h3>
+                <label>Niveau choisi :</label>
+                <div class="select-wrapper">
+                    <select id="setup-plank-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
+                </div>
+                <label>Objectif (Secondes par tour) :</label>
+                <input type="number" id="setup-plank-target" placeholder="Ex: 30" min="1">
+            </div>
+
+            <div class="card">
+                <h3 style="color: var(--secondary); margin-top: 0;">3. PUSH-UP (POMPES)</h3>
+                <label>Niveau choisi :</label>
+                <div class="select-wrapper">
+                    <select id="setup-push-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
+                </div>
+                <label>Objectif (Répétitions par tour) :</label>
+                <input type="number" id="setup-push-target" placeholder="Ex: 10" min="1">
+            </div>
+
+            <button class="btn-main" onclick="goToEval()">VALIDER LE CONTRAT ➡️</button>
+            <button class="btn-secondary" onclick="navTo('view-student-menu')">Annuler</button>
+        </div>
+
+        <!-- ================= VUE ÉLÈVE : ÉTAPE 2 (ÉVALUATION 5 TOURS) ================= -->
+        <div id="view-form-s1-eval" class="view">
+            <h2 style="text-align: center; color: var(--primary);">🔥 ÉTAPE 2 : LE WOD (5 TOURS)</h2>
             
-            <div id="emom-timer">05:00</div>
-            <button class="btn-main prof" id="btn-timer" onclick="toggleTimer()">▶️ Lancer le Chrono</button>
-
-            <!-- SQUAT -->
-            <div class="card">
-                <div class="exo-header">
-                    <h3>1. AIR SQUAT</h3>
-                    <div class="select-wrapper">
-                        <select id="s1-squat-lvl" class="level-select"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
-                    </div>
-                </div>
-                <div class="counter-group">
-                    <span class="counter-label">✅ Validées</span>
-                    <div class="counter-controls">
-                        <button class="btn-count btn-minus" onclick="updateCount('s1-squat-val', -1)">-</button>
-                        <span class="count-val" id="s1-squat-val">0</span>
-                        <button class="btn-count btn-plus" onclick="updateCount('s1-squat-val', 1)">+</button>
-                    </div>
-                </div>
-                <div class="counter-group norep">
-                    <span class="counter-label" style="color:var(--danger);">❌ NO REP</span>
-                    <div class="counter-controls">
-                        <button class="btn-count btn-minus" onclick="updateCount('s1-squat-norep', -1)">-</button>
-                        <span class="count-val" id="s1-squat-norep" style="color:var(--danger);">0</span>
-                        <button class="btn-count btn-plus" onclick="updateCount('s1-squat-norep', 1)">+</button>
-                    </div>
+            <!-- Résumé du contrat -->
+            <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(59, 130, 246, 0.4);">
+                <h3 style="margin-top:0; font-size:0.95rem; color: var(--text-muted); text-transform: uppercase;">Rappel du Contrat (Par tour) :</h3>
+                <div id="summary-contract" style="font-weight: 600; color: white; font-size: 0.95rem; line-height: 1.6;">
+                    <!-- Rempli en JS -->
                 </div>
             </div>
 
-            <!-- PLANCHE -->
-            <div class="card">
-                <div class="exo-header">
-                    <h3>2. PLANCHE</h3>
-                    <div class="select-wrapper">
-                        <select id="s1-plank-lvl" class="level-select"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
-                    </div>
-                </div>
-                <div class="counter-group">
-                    <span class="counter-label">✅ Validées</span>
-                    <div class="counter-controls">
-                        <button class="btn-count btn-minus" onclick="updateCount('s1-plank-val', -1)">-</button>
-                        <span class="count-val" id="s1-plank-val">0</span>
-                        <button class="btn-count btn-plus" onclick="updateCount('s1-plank-val', 1)">+</button>
-                    </div>
-                </div>
-                <div class="counter-group norep">
-                    <span class="counter-label" style="color:var(--danger);">❌ NO REP</span>
-                    <div class="counter-controls">
-                        <button class="btn-count btn-minus" onclick="updateCount('s1-plank-norep', -1)">-</button>
-                        <span class="count-val" id="s1-plank-norep" style="color:var(--danger);">0</span>
-                        <button class="btn-count btn-plus" onclick="updateCount('s1-plank-norep', 1)">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PUSH UP -->
-            <div class="card">
-                <div class="exo-header">
-                    <h3>3. PUSH-UP</h3>
-                    <div class="select-wrapper">
-                        <select id="s1-push-lvl" class="level-select"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
-                    </div>
-                </div>
-                <div class="counter-group">
-                    <span class="counter-label">✅ Validées</span>
-                    <div class="counter-controls">
-                        <button class="btn-count btn-minus" onclick="updateCount('s1-push-val', -1)">-</button>
-                        <span class="count-val" id="s1-push-val">0</span>
-                        <button class="btn-count btn-plus" onclick="updateCount('s1-push-val', 1)">+</button>
-                    </div>
-                </div>
-                <div class="counter-group norep">
-                    <span class="counter-label" style="color:var(--danger);">❌ NO REP</span>
-                    <div class="counter-controls">
-                        <button class="btn-count btn-minus" onclick="updateCount('s1-push-norep', -1)">-</button>
-                        <span class="count-val" id="s1-push-norep" style="color:var(--danger);">0</span>
-                        <button class="btn-count btn-plus" onclick="updateCount('s1-push-norep', 1)">+</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Les 5 Tours (Générés en JS) -->
+            <div id="tours-container"></div>
 
             <button class="btn-main" onclick="submitS1()">📤 ENVOYER LES RÉSULTATS</button>
-            <button class="btn-secondary" onclick="navTo('view-student-menu')">Abandonner</button>
+            <button class="btn-secondary" onclick="navTo('view-form-s1-setup')">Modifier le contrat</button>
         </div>
 
     </div>
@@ -410,9 +350,7 @@
         let currentClass = "";
         let currentJudge = "";
         let currentAthlete = "";
-        let timerInterval;
-        let timeRemaining = 300; // 5 minutes
-        let extractedStudents = []; // Pour l'import CSV
+        let extractedStudents = [];
 
         // NAVIGATION
         function navTo(viewId) {
@@ -424,51 +362,40 @@
 
         // ================== ESPACE PROF ==================
         function checkProf() {
-            if(document.getElementById('prof-code').value === 'CT2026') {
+            // Le code 'CT2026' est crypté en base64 ('Q1QyMDI2') pour être invisible dans le code HTML.
+            if(btoa(document.getElementById('prof-code').value) === 'Q1QyMDI2') {
                 navTo('view-prof-dashboard');
                 fetchClassesForFilter();
                 loadResults();
                 document.getElementById('prof-code').value = '';
             } else {
-                alert('Code incorrect.');
+                alert('Accès refusé. Code incorrect.');
             }
         }
 
-        // LECTURE DU FICHIER CSV PRONOTE (Correction Windows/Mac & Accents)
         function handleCSVUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
             
             document.getElementById('upload-text').innerHTML = `✅ Fichier chargé : <strong>${file.name}</strong>`;
-            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                
-                // 1. Découper les lignes de façon universelle (Windows \r\n, Mac \r, Linux \n)
                 const lines = text.split(/\r\n|\n|\r/);
                 extractedStudents = [];
                 
-                // 2. Analyser chaque ligne
                 for(let i = 0; i < lines.length; i++) {
                     if (lines[i].trim() === "") continue; 
-                    
                     const cols = lines[i].split(';');
-                    
-                    // Une ligne Pronote valide possède de nombreuses colonnes
                     if (cols.length > 5) {
                         const nomPrenom = cols[0].replace(/"/g, '').trim();
-                        
-                        // Exclure la ligne d'en-tête (qui s'appelle Élèves ou Eleves)
                         if (nomPrenom !== "" && nomPrenom.toLowerCase() !== "élèves" && nomPrenom.toLowerCase() !== "eleves") {
                             extractedStudents.push(nomPrenom);
                         }
                     }
                 }
                 
-                extractedStudents.sort(); // Tri alphabétique
-                
-                // Affichage prévisualisation
+                extractedStudents.sort();
                 const preview = document.getElementById('preview-students');
                 preview.style.display = "block";
                 preview.innerHTML = `<strong>${extractedStudents.length} élèves trouvés :</strong><br>` + extractedStudents.join(', ');
@@ -480,8 +407,6 @@
                     alert("Aucun élève trouvé. Vérifiez que c'est bien l'export CSV de Pronote.");
                 }
             };
-            
-            // PRONOTE utilise l'encodage ISO-8859-1 (standard français)
             reader.readAsText(file, 'ISO-8859-1'); 
         }
 
@@ -495,8 +420,7 @@
             
             try {
                 await db.collection('classes').doc(className).set({ students: extractedStudents });
-                alert(`✅ La classe ${className} a bien été enregistrée avec ${extractedStudents.length} élèves !`);
-                // Reset form
+                alert(`✅ La classe ${className} a bien été enregistrée !`);
                 document.getElementById('class-name-input').value = '';
                 document.getElementById('csv-file').value = '';
                 document.getElementById('upload-text').innerHTML = "📁 Cliquez pour choisir le fichier Pronote";
@@ -505,8 +429,7 @@
                 btn.textContent = "Sauvegarder la classe";
                 fetchClassesForFilter();
             } catch (e) {
-                alert("Erreur de connexion à Firebase. Les règles Firestore autorisent-elles l'écriture ?");
-                console.error(e);
+                alert("Erreur de connexion Firebase.");
             }
         }
 
@@ -516,12 +439,8 @@
             select.innerHTML = '<option value="">-- Choisir la classe --</option>';
             try {
                 const snapshot = await db.collection('classes').get();
-                snapshot.forEach(doc => {
-                    select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`;
-                });
-            } catch (e) {
-                console.error("Impossible de récupérer les classes.", e);
-            }
+                snapshot.forEach(doc => { select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`; });
+            } catch (e) {}
         }
 
         async function fetchClassesForFilter() {
@@ -529,9 +448,7 @@
             select.innerHTML = '<option value="">Toutes les classes</option>';
             try {
                 const snapshot = await db.collection('classes').get();
-                snapshot.forEach(doc => {
-                    select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`;
-                });
+                snapshot.forEach(doc => { select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`; });
             } catch(e) {}
         }
 
@@ -546,7 +463,6 @@
                 selectA.innerHTML = '<option value="">-- Attente de la classe --</option>';
                 return;
             }
-
             try {
                 const doc = await db.collection('classes').doc(className).get();
                 if(doc.exists) {
@@ -556,9 +472,7 @@
                     selectJ.innerHTML = html; selectA.innerHTML = html;
                     selectJ.disabled = false; selectA.disabled = false;
                 }
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) {}
         }
 
         function goToMenu() {
@@ -574,130 +488,109 @@
             navTo('view-student-menu');
         }
 
-        // ================== LOGIQUE EMOM S1 ==================
-        function startSession(sessionType) {
-            if(sessionType === 'S1_EMOM') {
-                resetS1Form();
-                navTo('view-form-s1');
-            }
-        }
-
+        // ================== LOGIQUE S1 (CONTRAT & TOURS) ==================
+        
         function updateCount(id, change) {
             const el = document.getElementById(id);
             let val = parseInt(el.textContent) + change;
             if(val < 0) val = 0;
             
-            // Animation tactile
             el.style.transform = "scale(1.3)";
             setTimeout(() => el.style.transform = "scale(1)", 150);
-            
             el.textContent = val;
         }
 
-        function toggleTimer() {
-            const btn = document.getElementById('btn-timer');
-            const display = document.getElementById('emom-timer');
-            
-            if(timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                btn.innerHTML = "▶️ Reprendre";
-                btn.style.background = "var(--secondary)";
-            } else {
-                btn.innerHTML = "⏸️ Pause";
-                btn.style.background = "var(--danger)";
-                
-                timerInterval = setInterval(() => {
-                    timeRemaining--;
-                    let m = Math.floor(timeRemaining / 60);
-                    let s = timeRemaining % 60;
-                    display.textContent = `0${m}:${s < 10 ? '0'+s : s}`;
-                    
-                    if(s === 0 && m >= 0 && timeRemaining !== 300) {
-                        // Flash & Beep
-                        const beep = new Audio('https://www.soundjay.com/button/beep-07.wav');
-                        beep.play().catch(e=>{});
-                        display.style.backgroundColor = "var(--primary)";
-                        display.style.boxShadow = "0 0 30px var(--primary)";
-                        setTimeout(() => {
-                            display.style.backgroundColor = "black";
-                            display.style.boxShadow = "inset 0 0 20px rgba(255,255,255,0.1)";
-                        }, 1000);
-                    }
-                    if(timeRemaining <= 0) {
-                        clearInterval(timerInterval);
-                        display.textContent = "TERMINÉ";
-                        display.style.color = "var(--primary)";
-                        btn.style.display = "none";
-                    }
-                }, 1000);
+        function renderTours() {
+            const container = document.getElementById('tours-container');
+            container.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                container.innerHTML += `
+                    <div class="card" style="padding-bottom: 0.5rem;">
+                        <h3 style="margin-top:0; color:white;">TOUR ${i}</h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">
+                            <label style="margin:0; font-size:1.1rem; color:white;">✅ Contrat global rempli ?</label>
+                            <label class="switch">
+                                <input type="checkbox" id="t${i}-valide">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="counter-group norep">
+                            <span class="counter-label" style="color:var(--danger);">❌ Fautes (NO REP)</span>
+                            <div class="counter-controls">
+                                <button class="btn-count btn-minus" onclick="updateCount('t${i}-norep', -1)">-</button>
+                                <span class="count-val" id="t${i}-norep" style="color:var(--danger);">0</span>
+                                <button class="btn-count btn-plus" onclick="updateCount('t${i}-norep', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
 
-        function resetS1Form() {
-            if(timerInterval) clearInterval(timerInterval); 
-            timerInterval = null;
-            timeRemaining = 300; 
-            
-            const display = document.getElementById('emom-timer');
-            display.textContent = "05:00";
-            display.style.color = "white";
-            
-            const btnTimer = document.getElementById('btn-timer');
-            btnTimer.style.display = "block";
-            btnTimer.innerHTML = "▶️ Lancer le Chrono";
-            btnTimer.style.background = "var(--secondary)";
+        function goToEval() {
+            const sqT = document.getElementById('setup-squat-target').value;
+            const plT = document.getElementById('setup-plank-target').value;
+            const puT = document.getElementById('setup-push-target').value;
 
-            ['s1-squat-val','s1-squat-norep','s1-plank-val','s1-plank-norep','s1-push-val','s1-push-norep'].forEach(id => {
-                document.getElementById(id).textContent = "0";
-            });
-            ['s1-squat-lvl','s1-plank-lvl','s1-push-lvl'].forEach(id => document.getElementById(id).value = "N1");
+            if(!sqT || !plT || !puT) return alert("❌ Merci de remplir les 3 objectifs du contrat avant de démarrer !");
+
+            const sqL = document.getElementById('setup-squat-lvl').value;
+            const plL = document.getElementById('setup-plank-lvl').value;
+            const puL = document.getElementById('setup-push-lvl').value;
+
+            document.getElementById('summary-contract').innerHTML = `
+                🏋️ Squat (${sqL}) : <span style="color:var(--primary)">${sqT} reps</span><br>
+                ⏱️ Planche (${plL}) : <span style="color:var(--primary)">${plT} secs</span><br>
+                💪 Push-Up (${puL}) : <span style="color:var(--primary)">${puT} reps</span>
+            `;
+
+            renderTours(); // Génère les 5 blocs
+            navTo('view-form-s1-eval');
         }
 
         async function submitS1() {
+            const btn = event.target;
+            btn.textContent = "⏳ Envoi en cours...";
+            btn.disabled = true;
+
             const payload = {
                 timestamp: new Date(),
                 classe: currentClass,
                 juge: currentJudge,
                 athlete: currentAthlete,
-                seance: "S1_EMOM",
-                data: {
-                    squat: { 
-                        lvl: document.getElementById('s1-squat-lvl').value, 
-                        val: parseInt(document.getElementById('s1-squat-val').textContent),
-                        norep: parseInt(document.getElementById('s1-squat-norep').textContent)
-                    },
-                    plank: { 
-                        lvl: document.getElementById('s1-plank-lvl').value, 
-                        val: parseInt(document.getElementById('s1-plank-val').textContent),
-                        norep: parseInt(document.getElementById('s1-plank-norep').textContent)
-                    },
-                    pushup: { 
-                        lvl: document.getElementById('s1-push-lvl').value, 
-                        val: parseInt(document.getElementById('s1-push-val').textContent),
-                        norep: parseInt(document.getElementById('s1-push-norep').textContent)
-                    }
-                }
+                seance: "S1_5_TOURS",
+                contrat: {
+                    squat: { lvl: document.getElementById('setup-squat-lvl').value, target: parseInt(document.getElementById('setup-squat-target').value) },
+                    plank: { lvl: document.getElementById('setup-plank-lvl').value, target: parseInt(document.getElementById('setup-plank-target').value) },
+                    pushup: { lvl: document.getElementById('setup-push-lvl').value, target: parseInt(document.getElementById('setup-push-target').value) }
+                },
+                tours: []
             };
 
-            const btn = event.target;
-            btn.textContent = "⏳ Envoi en cours...";
-            btn.disabled = true;
+            for(let i=1; i<=5; i++) {
+                payload.tours.push({
+                    valide: document.getElementById(`t${i}-valide`).checked,
+                    norep: parseInt(document.getElementById(`t${i}-norep`).textContent)
+                });
+            }
 
             try {
                 await db.collection('resultats').add(payload);
                 alert("✅ Résultats envoyés avec succès ! Beau travail.");
-                navTo('view-student-setup');
+                // Reset du setup pour le prochain athlète
+                document.getElementById('setup-squat-target').value = '';
+                document.getElementById('setup-plank-target').value = '';
+                document.getElementById('setup-push-target').value = '';
+                navTo('view-student-menu');
             } catch(e) {
                 alert("❌ Erreur de réseau. Rapproche-toi du professeur.");
-                console.error(e);
             } finally {
                 btn.textContent = "📤 ENVOYER LES RÉSULTATS";
                 btn.disabled = false;
             }
         }
 
-        // ================== AFFICHER RESULTATS ==================
+        // ================== AFFICHER RESULTATS PROF ==================
         async function loadResults() {
             const tbody = document.getElementById('results-body');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
@@ -718,11 +611,13 @@
                     const date = d.timestamp.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
                     
                     let htmlScore = "";
-                    if(d.seance === "S1_EMOM") {
+                    if(d.seance === "S1_5_TOURS" && d.tours) {
+                        let toursValides = d.tours.filter(t => t.valide).length;
+                        let totalNorep = d.tours.reduce((sum, t) => sum + t.norep, 0);
                         htmlScore = `
-                            <span style="color:var(--text-main)">SQ (${d.data.squat.lvl}):</span> <span style="color:var(--success)">${d.data.squat.val}</span> / <span style="color:var(--danger)">${d.data.squat.norep}</span><br>
-                            <span style="color:var(--text-main)">PL (${d.data.plank.lvl}):</span> <span style="color:var(--success)">${d.data.plank.val}</span> / <span style="color:var(--danger)">${d.data.plank.norep}</span><br>
-                            <span style="color:var(--text-main)">PU (${d.data.pushup.lvl}):</span> <span style="color:var(--success)">${d.data.pushup.val}</span> / <span style="color:var(--danger)">${d.data.pushup.norep}</span>
+                            <span style="color:var(--text-muted); font-size:0.75rem;">Contrat: SQ(${d.contrat.squat.lvl}-${d.contrat.squat.target}) | PL(${d.contrat.plank.lvl}-${d.contrat.plank.target}) | PU(${d.contrat.pushup.lvl}-${d.contrat.pushup.target})</span><br>
+                            <span style="color:var(--success); font-weight:bold;">✅ Validés : ${toursValides} / 5</span><br>
+                            <span style="color:var(--danger); font-weight:bold;">❌ No Rep : ${totalNorep}</span>
                         `;
                     }
 
@@ -737,7 +632,6 @@
                 });
             } catch(e) {
                 tbody.innerHTML = '<tr><td colspan="4" style="color:var(--danger); text-align:center;">Erreur de connexion Firebase.</td></tr>';
-                console.error(e);
             }
         }
     </script>
