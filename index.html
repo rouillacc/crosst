@@ -91,26 +91,21 @@
             border: 2px solid var(--text-muted); border-radius: 12px; font-size: 1rem; font-weight: 600;
         }
 
-        /* INPUTS & SELECTS */
-        select, input[type="text"], input[type="password"] {
+        /* CORRECTION : INPUTS & SELECTS (Blanc sur texte noir) */
+        select, input[type="text"], input[type="password"], input[type="number"] {
             width: 100%; padding: 1rem; margin-bottom: 1.5rem;
-            border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 1rem;
-            background-color: rgba(0,0,0,0.2); color: white; font-weight: 600;
+            border: 2px solid transparent; border-radius: 12px; font-size: 1.1rem;
+            background-color: #ffffff; color: #0f172a; font-weight: 700;
             outline: none; appearance: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) inset;
         }
-        input[type="number"] {
-            width: 100%; padding: 1rem; margin-bottom: 1.5rem;
-            border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 1.1rem;
-            background-color: rgba(0,0,0,0.2); color: white; font-weight: 800; text-align: center;
-            outline: none;
-        }
-        select:focus, input:focus { border-color: var(--secondary); }
-        select:disabled { opacity: 0.5; }
+        select:focus, input:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+        select:disabled { opacity: 0.5; background-color: #cbd5e1; }
         
         .select-wrapper { position: relative; }
         .select-wrapper::after {
-            content: '▼'; font-size: 0.8rem; color: var(--text-muted);
-            position: absolute; right: 15px; top: 40%; pointer-events: none;
+            content: '▼'; font-size: 0.8rem; color: #64748b;
+            position: absolute; right: 15px; top: 38%; pointer-events: none;
         }
 
         /* INPUT FILE PRONOTE */
@@ -119,7 +114,7 @@
             background: rgba(59, 130, 246, 0.1); border: 2px dashed var(--secondary);
             border-radius: 12px; padding: 2rem 1rem; text-align: center; margin-bottom: 1rem;
         }
-        .file-upload-wrapper input[type="file"] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; height: 100%; }
+        .file-upload-wrapper input[type="file"] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; height: 100%; cursor: pointer;}
         .file-upload-text { color: var(--secondary); font-weight: 600; }
 
         /* TOGGLE SWITCH (Contrat Validé) */
@@ -188,8 +183,8 @@
             <div class="card">
                 <h2>Accès Sécurisé</h2>
                 <label>Code Professeur :</label>
-                <!-- Le placeholder ne dévoile plus le code, et le script est crypté -->
-                <input type="password" id="prof-code" placeholder="Entrez le code d'accès..." onkeypress="if(event.key === 'Enter') checkProf()">
+                <!-- Code masqué dans l'UI et crypté dans le script -->
+                <input type="password" id="prof-code" placeholder="Entrez le code..." onkeypress="if(event.key === 'Enter') checkProf()">
                 <button class="btn-main prof" onclick="checkProf()">Valider</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
             </div>
@@ -275,7 +270,7 @@
         <!-- ================= VUE ÉLÈVE : ÉTAPE 1 (CONTRAT) ================= -->
         <div id="view-form-s1-setup" class="view">
             <h2 style="text-align: center; color: var(--primary);">📋 ÉTAPE 1 : LE CONTRAT</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Avant le départ, le juge valide les choix de l'athlète.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Avant le départ, l'athlète annonce ses objectifs pour chaque bloc de travail.</p>
 
             <div class="card">
                 <h3 style="color: var(--secondary); margin-top: 0;">1. AIR SQUAT</h3>
@@ -323,7 +318,7 @@
                 </div>
             </div>
 
-            <!-- Les 5 Tours (Générés en JS) -->
+            <!-- Les 5 Tours (Générés dynamiquement en JS) -->
             <div id="tours-container"></div>
 
             <button class="btn-main" onclick="submitS1()">📤 ENVOYER LES RÉSULTATS</button>
@@ -362,7 +357,7 @@
 
         // ================== ESPACE PROF ==================
         function checkProf() {
-            // Le code 'CT2026' est crypté en base64 ('Q1QyMDI2') pour être invisible dans le code HTML.
+            // Le code (CT2026) est masqué via encodage base64 ('Q1QyMDI2')
             if(btoa(document.getElementById('prof-code').value) === 'Q1QyMDI2') {
                 navTo('view-prof-dashboard');
                 fetchClassesForFilter();
@@ -489,7 +484,6 @@
         }
 
         // ================== LOGIQUE S1 (CONTRAT & TOURS) ==================
-        
         function updateCount(id, change) {
             const el = document.getElementById(id);
             let val = parseInt(el.textContent) + change;
@@ -505,8 +499,8 @@
             container.innerHTML = '';
             for(let i=1; i<=5; i++) {
                 container.innerHTML += `
-                    <div class="card" style="padding-bottom: 0.5rem;">
-                        <h3 style="margin-top:0; color:white;">TOUR ${i}</h3>
+                    <div class="card" style="padding-bottom: 1rem;">
+                        <h3 style="margin-top:0; color:white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">TOUR ${i}</h3>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:12px;">
                             <label style="margin:0; font-size:1.1rem; color:white;">✅ Contrat global rempli ?</label>
                             <label class="switch">
@@ -544,7 +538,7 @@
                 💪 Push-Up (${puL}) : <span style="color:var(--primary)">${puT} reps</span>
             `;
 
-            renderTours(); // Génère les 5 blocs
+            renderTours(); // Génère les 5 blocs de tours
             navTo('view-form-s1-eval');
         }
 
@@ -577,10 +571,12 @@
             try {
                 await db.collection('resultats').add(payload);
                 alert("✅ Résultats envoyés avec succès ! Beau travail.");
+                
                 // Reset du setup pour le prochain athlète
                 document.getElementById('setup-squat-target').value = '';
                 document.getElementById('setup-plank-target').value = '';
                 document.getElementById('setup-push-target').value = '';
+                
                 navTo('view-student-menu');
             } catch(e) {
                 alert("❌ Erreur de réseau. Rapproche-toi du professeur.");
