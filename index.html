@@ -135,7 +135,6 @@
         .btn-tiny.plus-val { background: var(--success); box-shadow: 0 2px 5px rgba(16, 185, 129, 0.3);}
         .btn-tiny.plus-err { background: var(--danger); box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);}
         
-        /* La fameuse "case vide" */
         .val-tiny-input {
             width: 44px; height: 36px;
             background: #ffffff;
@@ -151,9 +150,7 @@
         }
         .val-tiny-input:focus { border-color: var(--secondary); outline: none; }
         .val-tiny-input::-webkit-outer-spin-button,
-        .val-tiny-input::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0; 
-        }
+        .val-tiny-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .val-tiny-input.err { color: var(--danger); }
 
         /* TABLE PROF */
@@ -189,8 +186,8 @@
             <div class="card">
                 <h2>Accès Sécurisé</h2>
                 <label>Code Professeur :</label>
-                <!-- Code hyper-sécurisé : autocomplete bloqué, le champ se vide au clic -->
-                <input type="password" id="prof-code" placeholder="Entrez le code secret..." autocomplete="new-password" onfocus="this.value=''" onkeypress="if(event.key === 'Enter') checkProf()">
+                <!-- Code hyper-sécurisé : autocomplete bloqué, le champ se vide au focus -->
+                <input type="password" id="prof-code" placeholder="Code secret..." autocomplete="new-password" onfocus="this.value=''" onkeypress="if(event.key === 'Enter') checkProf()">
                 <button class="btn-main prof" onclick="checkProf()">Valider</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
             </div>
@@ -486,7 +483,6 @@
         }
 
         // ================== LOGIQUE S1 (CONTRAT & TOURS) ==================
-        
         function updateCount(id, change) {
             const el = document.getElementById(id);
             let val = parseInt(el.value) || 0;
@@ -638,10 +634,10 @@
             }
         }
 
-        // ================== AFFICHER RESULTATS PROF ==================
+        // ================== AFFICHER RESULTATS PROF (AVEC DEBUG ERREUR) ==================
         async function loadResults() {
             const tbody = document.getElementById('results-body');
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">⏳ Chargement des résultats...</td></tr>';
             const classFilter = document.getElementById('filter-class').value;
             
             let query = db.collection('resultats').orderBy('timestamp', 'desc');
@@ -651,7 +647,7 @@
                 const snapshot = await query.get();
                 tbody.innerHTML = '';
                 if(snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Aucun résultat.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Aucun résultat pour le moment.</td></tr>';
                     return;
                 }
                 snapshot.forEach(doc => {
@@ -664,7 +660,6 @@
                         let sumPlFait = 0, sumPlNorep = 0;
                         let sumPuFait = 0, sumPuNorep = 0;
                         
-                        // Génération du tableau détaillé caché (Tours 1 à 5)
                         let toursDetailsHtml = `<table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:0.5rem; border-collapse: collapse;">
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding:4px;">Tour</th><th style="padding:4px;">Squat</th><th style="padding:4px;">Planche</th><th style="padding:4px;">Push-Up</th></tr>`;
                         
@@ -713,7 +708,10 @@
                     `;
                 });
             } catch(e) {
-                tbody.innerHTML = '<tr><td colspan="4" style="color:var(--danger); text-align:center;">Erreur de connexion Firebase.</td></tr>';
+                // AFFICHE L'ERREUR EXACTE A L'ECRAN POUR AIDER AU DEBUG
+                tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger); text-align:center; padding:2rem;">
+                    <strong>Erreur technique :</strong><br> ${e.message}
+                </td></tr>`;
             }
         }
     </script>
