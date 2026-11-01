@@ -125,7 +125,7 @@
             background-color: rgba(0,0,0,0.2);
             color: white; font-weight: 600;
             outline: none; transition: border-color 0.2s;
-            appearance: none; /* Enlève la flèche native pour un look plus épuré */
+            appearance: none;
         }
         select:focus, input:focus { border-color: var(--secondary); }
         select:disabled { opacity: 0.5; }
@@ -434,7 +434,7 @@
             }
         }
 
-        // LECTURE DU FICHIER CSV PRONOTE (Adapté au nouveau format)
+        // LECTURE DU FICHIER CSV PRONOTE (Correction Windows/Mac & Accents)
         function handleCSVUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -444,21 +444,23 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                const lines = text.split('\n');
+                
+                // 1. Découper les lignes de façon universelle (Windows \r\n, Mac \r, Linux \n)
+                const lines = text.split(/\r\n|\n|\r/);
                 extractedStudents = [];
                 
-                // Analyse du CSV Pronote (séparateur point-virgule)
-                for(let i = 1; i < lines.length; i++) { // On saute la ligne 0 (entêtes)
-                    if (lines[i].trim() === "") continue; // Ignorer les lignes vides
+                // 2. Analyser chaque ligne
+                for(let i = 0; i < lines.length; i++) {
+                    if (lines[i].trim() === "") continue; 
                     
                     const cols = lines[i].split(';');
                     
-                    if (cols.length >= 1) {
-                        // Dans Pronote, le Nom et Prénom sont dans la 1ère colonne, ex: "AMIRAULT Evann"
-                        // On enlève les guillemets et on supprime les espaces superflus
+                    // Une ligne Pronote valide possède de nombreuses colonnes
+                    if (cols.length > 5) {
                         const nomPrenom = cols[0].replace(/"/g, '').trim();
                         
-                        if (nomPrenom !== "") {
+                        // Exclure la ligne d'en-tête (qui s'appelle Élèves ou Eleves)
+                        if (nomPrenom !== "" && nomPrenom.toLowerCase() !== "élèves" && nomPrenom.toLowerCase() !== "eleves") {
                             extractedStudents.push(nomPrenom);
                         }
                     }
@@ -473,11 +475,14 @@
                 
                 if(extractedStudents.length > 0) {
                     document.getElementById('btn-save-class').style.display = "block";
+                } else {
+                    document.getElementById('btn-save-class').style.display = "none";
+                    alert("Aucun élève trouvé. Vérifiez que c'est bien l'export CSV de Pronote.");
                 }
             };
             
-            // UTF-8 gère parfaitement les accents comme dans "Maëna"
-            reader.readAsText(file, 'UTF-8'); 
+            // PRONOTE utilise l'encodage ISO-8859-1 (standard français)
+            reader.readAsText(file, 'ISO-8859-1'); 
         }
 
         async function saveClassToFirebase() {
@@ -500,7 +505,7 @@
                 btn.textContent = "Sauvegarder la classe";
                 fetchClassesForFilter();
             } catch (e) {
-                alert("Erreur de connexion à Firebase.");
+                alert("Erreur de connexion à Firebase. Les règles Firestore autorisent-elles l'écriture ?");
                 console.error(e);
             }
         }
