@@ -12,6 +12,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
+    <!-- html2pdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -23,6 +29,7 @@
             --text-muted: #94a3b8;
             --danger: #ef4444;
             --success: #10b981;
+            --warning: #f59e0b;
             --border-radius: 16px;
         }
 
@@ -63,7 +70,7 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* TYPOGRAPHIE & CARTES */
-        h2 { font-weight: 800; font-size: 1.3rem; margin-top: 0; margin-bottom: 1.5rem; color: white;}
+        h2 { font-weight: 800; font-size: 1.3rem; margin-top: 0; margin-bottom: 1.5rem; color: white; text-align: center;}
         label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;}
         
         .card {
@@ -89,7 +96,9 @@
             display: block; width: 100%; padding: 1rem; margin-top: 1rem;
             background-color: transparent; color: var(--text-muted); 
             border: 2px solid var(--text-muted); border-radius: 12px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
         }
+        .btn-secondary:hover { background-color: rgba(255,255,255,0.05); }
 
         /* INPUTS & SELECTS (Blanc sur texte noir) */
         select, input[type="text"], input[type="password"], input[type="number"].main-input {
@@ -113,6 +122,7 @@
             position: relative; overflow: hidden; display: inline-block; width: 100%;
             background: rgba(59, 130, 246, 0.1); border: 2px dashed var(--secondary);
             border-radius: 12px; padding: 2rem 1rem; text-align: center; margin-bottom: 1rem;
+            cursor: pointer;
         }
         .file-upload-wrapper input[type="file"] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; height: 100%; cursor: pointer;}
         .file-upload-text { color: var(--secondary); font-weight: 600; }
@@ -153,13 +163,44 @@
         .val-tiny-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .val-tiny-input.err { color: var(--danger); }
 
+        /* COULEURS DE REUSSITE */
+        .color-vert { color: var(--success); font-weight: bold; }
+        .color-jaune { color: var(--success); font-weight: bold; } 
+        .color-orange { color: var(--primary); font-weight: bold; }
+        .color-rouge { color: var(--danger); font-weight: bold; }
+        
+        .badge-vert { background-color: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--success); }
+        .badge-jaune { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--warning); }
+        .badge-orange { background-color: rgba(249, 115, 22, 0.2); color: var(--primary); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--primary); }
+        .badge-rouge { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--danger); }
+
         /* TABLE PROF */
         .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
         table.prof-table { width: 100%; border-collapse: collapse; background: var(--card-dark); font-size: 0.85rem;}
         table.prof-table th, table.prof-table td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem; text-align: left; }
         table.prof-table th { background-color: rgba(0,0,0,0.3); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem;}
         table.prof-table td { color: var(--text-main); }
-        .score-cell { font-family: monospace; font-size: 0.9rem; color: var(--primary); }
+        
+        /* PDF EXPORT STYLES (Light theme for printing) */
+        #pdf-container { display: none; background: white; color: black; padding: 20px; font-family: sans-serif; }
+        #pdf-container table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        #pdf-container th, #pdf-container td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        #pdf-container th { background-color: #f2f2f2; }
+        #pdf-container h2 { color: #333; text-align: center; }
+        .pdf-badge { padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+        .pdf-vert { background-color: #d1fae5; color: #065f46; }
+        .pdf-jaune { background-color: #fef3c7; color: #92400e; }
+        .pdf-orange { background-color: #ffedd5; color: #9a3412; }
+        .pdf-rouge { background-color: #fee2e2; color: #991b1b; }
+        
+        /* ALERT CUSTOM */
+        .custom-alert {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--card-dark); border: 1px solid var(--secondary);
+            padding: 1rem 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000; display: none; align-items: center; gap: 10px; font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -167,6 +208,10 @@
     <header>
         <h1 id="header-title">🔥 Cross Training</h1>
     </header>
+
+    <div class="custom-alert" id="custom-alert">
+        <span id="alert-msg">Message</span>
+    </div>
 
     <div class="container">
         
@@ -217,9 +262,12 @@
                 <div class="select-wrapper">
                     <select id="filter-class" onchange="loadResults()"><option value="">Toutes les classes</option></select>
                 </div>
+                
+                <button class="btn-secondary" style="margin-bottom: 1rem; border-color: var(--secondary); color: var(--secondary);" onclick="exportPDF()">📄 Exporter PDF</button>
+
                 <div class="table-wrapper">
                     <table class="prof-table" id="results-table">
-                        <thead><tr><th>Classe</th><th>Athlète / Juge</th><th>Séance</th><th>Scores Détaillés (Sur 5 Tours)</th></tr></thead>
+                        <thead><tr><th>Classe</th><th>Athlète / Juge</th><th>Date</th><th>Bilan Séance</th></tr></thead>
                         <tbody id="results-body"></tbody>
                     </table>
                 </div>
@@ -248,6 +296,10 @@
                 <div class="select-wrapper">
                     <select id="student-athlete" disabled><option value="">-- Attente de la classe --</option></select>
                 </div>
+                
+                <p style="font-size: 0.8rem; color: var(--warning); text-align: center; margin-top: 1rem;">
+                    <em>Note: L'authentification par liste déroulante ne garantit pas une stricte confidentialité des historiques si les élèves partagent leurs appareils.</em>
+                </p>
 
                 <button class="btn-main" onclick="goToMenu()">C'est parti ! 🚀</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
@@ -263,50 +315,47 @@
                     <span style="color:var(--text-muted); font-size:0.9rem;">Athlète :</span> <strong id="display-athlete" style="color:var(--primary);"></strong>
                 </div>
                 
-                <button class="btn-main" onclick="navTo('view-form-s1-setup')">🏋️ SÉANCE 1 : Les 5 Tours</button>
-                <button class="btn-main" style="background: rgba(255,255,255,0.1); color: var(--text-muted); box-shadow: none;" disabled>🔜 Éval Finale (Bientôt)</button>
+                <button class="btn-main" onclick="navTo('view-form-s1-setup')">🏋️ Démarrer Évaluation (5 Tours)</button>
+                <button class="btn-main prof" onclick="loadHistorique()">📈 Voir l'historique de l'athlète</button>
                 
-                <button class="btn-secondary" onclick="navTo('view-student-setup')">Changer les rôles</button>
+                <button class="btn-secondary" onclick="navTo('view-student-setup')">Changer d'élèves</button>
             </div>
         </div>
 
         <!-- ================= VUE ÉLÈVE : ÉTAPE 1 (CONTRAT) ================= -->
         <div id="view-form-s1-setup" class="view">
             <h2 style="text-align: center; color: var(--primary);">📋 ÉTAPE 1 : LE CONTRAT</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Le juge enregistre l'objectif fixé par l'athlète.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">L'athlète annonce ses objectifs <strong>par tour</strong>.</p>
 
             <div class="card">
-                <h3 style="color: var(--secondary); margin-top: 0;">1. AIR SQUAT</h3>
-                <label>Niveau choisi :</label>
-                <div class="select-wrapper">
-                    <select id="setup-squat-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
-                </div>
-                <label>Objectif (Répétitions par tour) :</label>
+                <h3 style="color: var(--secondary); margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
+                    <span>1. AIR SQUAT</span>
+                    <select id="setup-squat-lvl" style="width:auto; padding:0.3rem; margin:0; font-size:0.9rem; border-radius:8px;"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
+                </h3>
+                <label>Objectif (Répétitions / tour) :</label>
                 <input type="number" class="main-input" id="setup-squat-target" placeholder="Ex: 15" min="1">
             </div>
 
             <div class="card">
-                <h3 style="color: var(--secondary); margin-top: 0;">2. PLANCHE</h3>
-                <label>Niveau choisi :</label>
-                <div class="select-wrapper">
-                    <select id="setup-plank-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
-                </div>
-                <label>Objectif (Secondes par tour) :</label>
+                <h3 style="color: var(--secondary); margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
+                    <span>2. PLANCHE</span>
+                    <select id="setup-plank-lvl" style="width:auto; padding:0.3rem; margin:0; font-size:0.9rem; border-radius:8px;"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
+                </h3>
+                <label>Objectif (Secondes / tour) :</label>
                 <input type="number" class="main-input" id="setup-plank-target" placeholder="Ex: 30" min="1">
             </div>
 
             <div class="card">
-                <h3 style="color: var(--secondary); margin-top: 0;">3. PUSH-UP (POMPES)</h3>
-                <label>Niveau choisi :</label>
-                <div class="select-wrapper">
-                    <select id="setup-push-lvl"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
-                </div>
-                <label>Objectif (Répétitions par tour) :</label>
+                <h3 style="color: var(--secondary); margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
+                    <span>3. PUSH-UP</span>
+                    <select id="setup-push-lvl" style="width:auto; padding:0.3rem; margin:0; font-size:0.9rem; border-radius:8px;"><option value="N1">NIV 1</option><option value="N2">NIV 2</option><option value="N3">NIV 3</option><option value="N4">NIV 4</option></select>
+                </h3>
+                <label>Objectif (Répétitions / tour) :</label>
                 <input type="number" class="main-input" id="setup-push-target" placeholder="Ex: 10" min="1">
             </div>
 
-            <button class="btn-main" onclick="goToEval()">VALIDER LE CONTRAT ➡️</button>
-            <button class="btn-secondary" onclick="navTo('view-student-menu')">Annuler</button>
+            <button class="btn-main" onclick="goToEval()">PASSER À L'ÉVALUATION ➡️</button>
+            <button class="btn-secondary" onclick="navTo('view-student-menu')">Retour au menu</button>
         </div>
 
         <!-- ================= VUE ÉLÈVE : ÉTAPE 2 (ÉVALUATION 5 TOURS) ================= -->
@@ -314,21 +363,63 @@
             <h2 style="text-align: center; color: var(--primary);">🔥 ÉTAPE 2 : LE WOD</h2>
             
             <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 8px;">
-                💡 Touchez les cases blanches pour taper le score, ou utilisez les boutons <strong>+</strong> et <strong>-</strong>.
+                💡 Touchez les cases blanches pour taper le score direct, ou utilisez <strong>+</strong> et <strong>-</strong>.
             </p>
 
-            <!-- Les 5 Tours (Générés dynamiquement en JS) -->
             <div id="tours-container"></div>
 
-            <button class="btn-main" onclick="submitS1()">📤 ENVOYER LES RÉSULTATS</button>
-            <button class="btn-secondary" onclick="navTo('view-form-s1-setup')">Modifier le contrat</button>
+            <button class="btn-main" onclick="confirmSubmission()">✅ TERMINER ET VOIR LE BILAN</button>
+            <button class="btn-secondary" onclick="navTo('view-form-s1-setup')">⬅️ Modifier le contrat</button>
+        </div>
+
+        <!-- ================= VUE ÉLÈVE : BILAN INDIVIDUEL ================= -->
+        <div id="view-student-bilan" class="view">
+            <h2 style="text-align: center; color: var(--primary);">📊 BILAN DE LA SÉANCE</h2>
+            
+            <div id="bilan-content"></div>
+            
+            <button class="btn-main" id="btn-final-submit" onclick="submitS1()">📤 ENREGISTRER DANS FIREBASE</button>
+            <button class="btn-secondary" onclick="navTo('view-form-s1-eval')">⬅️ Corriger les scores</button>
+        </div>
+
+        <!-- ================= VUE ÉLÈVE : HISTORIQUE ================= -->
+        <div id="view-student-historique" class="view">
+            <h2 style="text-align: center; color: var(--primary);">📈 MON HISTORIQUE</h2>
+            <p style="text-align: center; color: var(--text-muted);">Progression de <strong id="hist-athlete-name" style="color:white;"></strong></p>
+            
+            <div class="card">
+                <canvas id="progressChart" width="400" height="250"></canvas>
+            </div>
+            
+            <div id="historique-list"></div>
+
+            <button class="btn-main prof" onclick="navTo('view-student-menu')">Retour au menu</button>
         </div>
 
     </div>
 
+    <!-- ZONE CACHÉE POUR EXPORT PDF -->
+    <div id="pdf-container">
+        <h2>Bilan Cross Training - <span id="pdf-class-name"></span></h2>
+        <p>Date d'export : <span id="pdf-date"></span></p>
+        <table id="pdf-table">
+            <thead>
+                <tr>
+                    <th>Élève</th>
+                    <th>Squat (Réussi/Obj)</th>
+                    <th>Planche (Réussi/Obj)</th>
+                    <th>Push-Up (Réussi/Obj)</th>
+                    <th>Bilan Global</th>
+                </tr>
+            </thead>
+            <tbody id="pdf-tbody">
+            </tbody>
+        </table>
+    </div>
+
     <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
-        // 1. CONFIGURATION FIREBASE
+        // --- 1. CONFIGURATION FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyDLGvFMYtVH01sPeGkqaM_BmgLXo9Q3cRY",
             authDomain: "cross-training-eleve.firebaseapp.com",
@@ -340,13 +431,15 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Variables Globales
+        // --- Variables Globales ---
         let currentClass = "";
         let currentJudge = "";
         let currentAthlete = "";
         let extractedStudents = [];
+        let currentPayload = null; 
+        let progressChartInstance = null;
 
-        // NAVIGATION
+        // --- UTILITAIRES ---
         function navTo(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
@@ -354,16 +447,42 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function showAlert(msg) {
+            const alertBox = document.getElementById('custom-alert');
+            document.getElementById('alert-msg').textContent = msg;
+            alertBox.style.display = 'flex';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+        }
+
+        function getBadgeClass(percent) {
+            if (percent >= 90) return 'badge-vert';
+            if (percent >= 75) return 'badge-jaune';
+            if (percent >= 50) return 'badge-orange';
+            return 'badge-rouge';
+        }
+        function getPdfBadgeClass(percent) {
+            if (percent >= 90) return 'pdf-vert';
+            if (percent >= 75) return 'pdf-jaune';
+            if (percent >= 50) return 'pdf-orange';
+            return 'pdf-rouge';
+        }
+
+        function calcPercent(fait, obj) {
+            if (obj <= 0) return 0;
+            let p = Math.round((fait / obj) * 100);
+            return p > 100 ? 100 : p; 
+        }
+
         // ================== ESPACE PROF ==================
         function checkProf() {
-            // Le mot de passe (CT2026) est masqué dans le code via encodage base64 ('Q1QyMDI2')
+            // "CT2026" en base64 est 'Q1QyMDI2'
             if(btoa(document.getElementById('prof-code').value) === 'Q1QyMDI2') {
                 navTo('view-prof-dashboard');
                 fetchClassesForFilter();
                 loadResults();
                 document.getElementById('prof-code').value = '';
             } else {
-                alert('Accès refusé. Code incorrect.');
+                showAlert('❌ Accès refusé. Code incorrect.');
             }
         }
 
@@ -375,13 +494,14 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
+                // Correction de l'expression régulière (sur une seule ligne !)
                 const lines = text.split(/\r\n|\n|\r/);
                 extractedStudents = [];
                 
                 for(let i = 0; i < lines.length; i++) {
                     if (lines[i].trim() === "") continue; 
                     const cols = lines[i].split(';');
-                    if (cols.length > 5) {
+                    if (cols.length >= 1) { 
                         const nomPrenom = cols[0].replace(/"/g, '').trim();
                         if (nomPrenom !== "" && nomPrenom.toLowerCase() !== "élèves" && nomPrenom.toLowerCase() !== "eleves") {
                             extractedStudents.push(nomPrenom);
@@ -398,7 +518,7 @@
                     document.getElementById('btn-save-class').style.display = "block";
                 } else {
                     document.getElementById('btn-save-class').style.display = "none";
-                    alert("Aucun élève trouvé. Vérifiez que c'est bien l'export CSV de Pronote.");
+                    showAlert("❌ Aucun élève trouvé dans ce fichier.");
                 }
             };
             reader.readAsText(file, 'ISO-8859-1'); 
@@ -406,15 +526,15 @@
 
         async function saveClassToFirebase() {
             const className = document.getElementById('class-name-input').value.trim();
-            if(!className) return alert('Veuillez entrer le nom de la classe (ex: 3ème A).');
-            if(extractedStudents.length === 0) return alert('Aucun élève à importer.');
+            if(!className) return showAlert('⚠️ Entrez le nom de la classe.');
+            if(extractedStudents.length === 0) return showAlert('⚠️ Aucun élève à importer.');
 
             const btn = document.getElementById('btn-save-class');
             btn.textContent = "⏳ Sauvegarde...";
             
             try {
                 await db.collection('classes').doc(className).set({ students: extractedStudents });
-                alert(`✅ La classe ${className} a bien été enregistrée !`);
+                showAlert(`✅ Classe ${className} enregistrée !`);
                 document.getElementById('class-name-input').value = '';
                 document.getElementById('csv-file').value = '';
                 document.getElementById('upload-text').innerHTML = "📁 Cliquez pour choisir le fichier Pronote";
@@ -423,11 +543,11 @@
                 btn.textContent = "Sauvegarder la classe";
                 fetchClassesForFilter();
             } catch (e) {
-                alert("Erreur de connexion Firebase.");
+                showAlert("❌ Erreur de connexion Firebase.");
             }
         }
 
-        // ================== ESPACE ÉLÈVE ==================
+        // ================== ESPACE ÉLÈVE : SETUP ==================
         async function fetchClasses() {
             const select = document.getElementById('student-class');
             select.innerHTML = '<option value="">-- Choisir la classe --</option>';
@@ -474,8 +594,8 @@
             currentJudge = document.getElementById('student-judge').value;
             currentAthlete = document.getElementById('student-athlete').value;
 
-            if(!currentClass || !currentJudge || !currentAthlete) return alert("Merci de tout remplir !");
-            if(currentJudge === currentAthlete) return alert("❌ Le juge ne peut pas s'évaluer lui-même !");
+            if(!currentClass || !currentJudge || !currentAthlete) return showAlert("⚠️ Remplissez tous les champs !");
+            if(currentJudge === currentAthlete) return showAlert("❌ On ne peut pas s'évaluer soi-même !");
 
             document.getElementById('display-judge').textContent = currentJudge;
             document.getElementById('display-athlete').textContent = currentAthlete;
@@ -487,12 +607,10 @@
             const el = document.getElementById(id);
             let val = parseInt(el.value) || 0;
             val += change;
-            if(val < 0) val = 0; // Pas de valeurs négatives
+            if(val < 0) val = 0; 
             
             el.value = val;
-            
-            // Animation au toucher
-            el.style.transform = "scale(1.2)";
+            el.style.transform = "scale(1.1)";
             setTimeout(() => el.style.transform = "scale(1)", 150);
         }
 
@@ -511,11 +629,11 @@
                         <table class="tour-table">
                             <tr>
                                 <th>Atelier</th>
-                                <th>✅ Répétitions (Fait)</th>
-                                <th>❌ No Rep (Faute)</th>
+                                <th>✅ Fait</th>
+                                <th>❌ No Rep</th>
                             </tr>
                             <tr>
-                                <td>Squat<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${sqT}</span></td>
+                                <td>SQ<br><span style="font-size:0.7rem; color:var(--text-muted);">Obj: ${sqT} rep</span></td>
                                 <td>
                                     <div class="ctrl-cell">
                                         <button class="btn-tiny minus" onclick="updateCount('t${i}-sq-val', -1)">-</button>
@@ -531,12 +649,12 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Planche<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${plT}s</span></td>
+                                <td>PL<br><span style="font-size:0.7rem; color:var(--text-muted);">Obj: ${plT} s</span></td>
                                 <td>
                                     <div class="ctrl-cell">
-                                        <button class="btn-tiny minus" onclick="updateCount('t${i}-pl-val', -1)">-</button>
+                                        <button class="btn-tiny minus" onclick="updateCount('t${i}-pl-val', -5)">-</button>
                                         <input type="number" class="val-tiny-input" id="t${i}-pl-val" placeholder="">
-                                        <button class="btn-tiny plus-val" onclick="updateCount('t${i}-pl-val', 1)">+</button>
+                                        <button class="btn-tiny plus-val" onclick="updateCount('t${i}-pl-val', 5)">+</button>
                                     </div>
                                 </td>
                                 <td>
@@ -547,7 +665,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Push-Up<br><span style="font-size:0.75rem; color:var(--text-muted);">Obj: ${puT}</span></td>
+                                <td>PU<br><span style="font-size:0.7rem; color:var(--text-muted);">Obj: ${puT} rep</span></td>
                                 <td>
                                     <div class="ctrl-cell">
                                         <button class="btn-tiny minus" onclick="updateCount('t${i}-pu-val', -1)">-</button>
@@ -573,18 +691,17 @@
             const plT = document.getElementById('setup-plank-target').value;
             const puT = document.getElementById('setup-push-target').value;
 
-            if(!sqT || !plT || !puT) return alert("❌ Merci de remplir les 3 objectifs du contrat avant de démarrer !");
+            if(!sqT || !plT || !puT) return showAlert("❌ Remplissez les 3 objectifs avant de démarrer !");
+            if(sqT <= 0 || plT <= 0 || puT <= 0) return showAlert("❌ Les objectifs doivent être supérieurs à 0 !");
 
             renderTours(); 
             navTo('view-form-s1-eval');
         }
 
-        async function submitS1() {
-            const btn = event.target;
-            btn.textContent = "⏳ Envoi en cours...";
-            btn.disabled = true;
-
-            const payload = {
+        // --- ETAPE INTERMEDIAIRE : CONFIRMATION ET BILAN ---
+        function confirmSubmission() {
+            // 1. Gather data
+            currentPayload = {
                 timestamp: new Date(),
                 classe: currentClass,
                 juge: currentJudge,
@@ -598,56 +715,228 @@
                 tours: []
             };
 
+            let sumSqFait = 0, sumSqNorep = 0;
+            let sumPlFait = 0, sumPlNorep = 0;
+            let sumPuFait = 0, sumPuNorep = 0;
+
             for(let i=1; i<=5; i++) {
-                payload.tours.push({
-                    tour: i,
-                    squat: {
-                        fait: parseInt(document.getElementById(`t${i}-sq-val`).value) || 0,
-                        norep: parseInt(document.getElementById(`t${i}-sq-err`).value) || 0
-                    },
-                    plank: {
-                        fait: parseInt(document.getElementById(`t${i}-pl-val`).value) || 0,
-                        norep: parseInt(document.getElementById(`t${i}-pl-err`).value) || 0
-                    },
-                    pushup: {
-                        fait: parseInt(document.getElementById(`t${i}-pu-val`).value) || 0,
-                        norep: parseInt(document.getElementById(`t${i}-pu-err`).value) || 0
-                    }
-                });
+                let sV = parseInt(document.getElementById(`t${i}-sq-val`).value) || 0;
+                let sE = parseInt(document.getElementById(`t${i}-sq-err`).value) || 0;
+                let plV = parseInt(document.getElementById(`t${i}-pl-val`).value) || 0;
+                let plE = parseInt(document.getElementById(`t${i}-pl-err`).value) || 0;
+                let puV = parseInt(document.getElementById(`t${i}-pu-val`).value) || 0;
+                let puE = parseInt(document.getElementById(`t${i}-pu-err`).value) || 0;
+
+                sumSqFait += sV; sumSqNorep += sE;
+                sumPlFait += plV; sumPlNorep += plE;
+                sumPuFait += puV; sumPuNorep += puE;
+
+                currentPayload.tours.push({ tour: i, squat: {fait:sV, norep:sE}, plank: {fait:plV, norep:plE}, pushup: {fait:puV, norep:puE} });
             }
 
+            // 2. Calculs du bilan
+            let targetSqTotal = currentPayload.contrat.squat.target * 5;
+            let targetPlTotal = currentPayload.contrat.plank.target * 5;
+            let targetPuTotal = currentPayload.contrat.pushup.target * 5;
+
+            let pSq = calcPercent(sumSqFait, targetSqTotal);
+            let pPl = calcPercent(sumPlFait, targetPlTotal);
+            let pPu = calcPercent(sumPuFait, targetPuTotal);
+            
+            let moyGlobal = Math.round((pSq + pPl + pPu) / 3);
+
+            // 3. Affichage du bilan
+            const bilanDiv = document.getElementById('bilan-content');
+            bilanDiv.innerHTML = `
+                <div class="card" style="text-align:center;">
+                    <h3 style="margin-top:0;">SCORE GLOBAL</h3>
+                    <div style="font-size: 3rem; font-weight:800;" class="${getBadgeClass(moyGlobal)}">${moyGlobal}%</div>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">Moyenne de réussite des 3 ateliers</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-top:0; font-size:1.1rem;">Détail par atelier :</h3>
+                    
+                    <div style="margin-bottom: 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <strong>Squat (N${currentPayload.contrat.squat.lvl})</strong>
+                            <span class="${getBadgeClass(pSq)}">${pSq}%</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">
+                            Fait : ${sumSqFait} / Obj : ${targetSqTotal} reps (❌ ${sumSqNorep} NoRep)
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <strong>Planche (N${currentPayload.contrat.plank.lvl})</strong>
+                            <span class="${getBadgeClass(pPl)}">${pPl}%</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">
+                            Fait : ${sumPlFait} / Obj : ${targetPlTotal} sec (❌ ${sumPlNorep} NoRep)
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <strong>Push-Up (N${currentPayload.contrat.pushup.lvl})</strong>
+                            <span class="${getBadgeClass(pPu)}">${pPu}%</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">
+                            Fait : ${sumPuFait} / Obj : ${targetPuTotal} reps (❌ ${sumPuNorep} NoRep)
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            navTo('view-student-bilan');
+        }
+
+        async function submitS1() {
+            if(!currentPayload) return;
+            const btn = document.getElementById('btn-final-submit');
+            btn.textContent = "⏳ Enregistrement...";
+            btn.disabled = true;
+
             try {
-                await db.collection('resultats').add(payload);
-                alert("✅ Résultats envoyés avec succès ! Beau travail.");
+                await db.collection('resultats').add(currentPayload);
+                showAlert("✅ Résultats enregistrés avec succès !");
                 
                 // Reset setup
                 document.getElementById('setup-squat-target').value = '';
                 document.getElementById('setup-plank-target').value = '';
                 document.getElementById('setup-push-target').value = '';
+                currentPayload = null;
                 
                 navTo('view-student-menu');
             } catch(e) {
-                alert("❌ Erreur de réseau. Rapproche-toi du professeur.");
+                showAlert("❌ Erreur de réseau.");
             } finally {
-                btn.textContent = "📤 ENVOYER LES RÉSULTATS";
+                btn.textContent = "📤 ENREGISTRER DANS FIREBASE";
                 btn.disabled = false;
             }
         }
 
+        // ================== HISTORIQUE ELEVE ==================
+        async function loadHistorique() {
+            if(!currentAthlete || !currentClass) return showAlert("Sélectionnez un élève.");
+            
+            navTo('view-student-historique');
+            document.getElementById('hist-athlete-name').textContent = currentAthlete;
+            const listDiv = document.getElementById('historique-list');
+            listDiv.innerHTML = '<p style="text-align:center;">Chargement...</p>';
+
+            try {
+                const snapshot = await db.collection('resultats')
+                    .where('classe', '==', currentClass)
+                    .where('athlete', '==', currentAthlete)
+                    .get();
+
+                let histData = [];
+                snapshot.forEach(doc => histData.push(doc.data()));
+                histData.sort((a, b) => b.timestamp - a.timestamp); 
+                
+                if(histData.length === 0) {
+                    listDiv.innerHTML = '<div class="card"><p style="text-align:center; color:var(--text-muted);">Aucune séance enregistrée pour le moment.</p></div>';
+                    if(progressChartInstance) progressChartInstance.destroy();
+                    return;
+                }
+
+                listDiv.innerHTML = '';
+                let chartLabels = [];
+                let chartDataSq = [];
+                let chartDataPl = [];
+                let chartDataPu = [];
+
+                let graphData = [...histData].reverse();
+                graphData.forEach((d, index) => {
+                     chartLabels.push(`S${index+1}`);
+                     if(d.seance === "S1_5_TOURS" && d.tours) {
+                        let sumSq = 0, sumPl = 0, sumPu = 0;
+                        d.tours.forEach(t => { 
+                            sumSq += (t.squat?.fait || 0); 
+                            sumPl += (t.plank?.fait || 0); 
+                            sumPu += (t.pushup?.fait || 0); 
+                        });
+                        chartDataSq.push(sumSq);
+                        chartDataPl.push(sumPl);
+                        chartDataPu.push(sumPu);
+                     }
+                });
+
+                const ctx = document.getElementById('progressChart').getContext('2d');
+                if(progressChartInstance) progressChartInstance.destroy();
+                progressChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [
+                            { label: 'Squat (reps)', data: chartDataSq, borderColor: '#f97316', tension: 0.3 },
+                            { label: 'Planche (sec)', data: chartDataPl, borderColor: '#10b981', tension: 0.3 },
+                            { label: 'Push-Up (reps)', data: chartDataPu, borderColor: '#3b82f6', tension: 0.3 }
+                        ]
+                    },
+                    options: { responsive: true, plugins: { legend: { labels: { color: '#f8fafc' } } }, scales: { y: { ticks: { color: '#94a3b8'} }, x: { ticks: { color: '#94a3b8'} } } }
+                });
+
+                histData.forEach((d, index) => {
+                    const dateObj = d.timestamp.toDate();
+                    const dateStr = dateObj.toLocaleDateString('fr-FR');
+                    
+                    if(d.seance === "S1_5_TOURS" && d.tours) {
+                        let sumSqFait = 0, targetSq = d.contrat.squat.target * 5;
+                        let sumPlFait = 0, targetPl = d.contrat.plank.target * 5;
+                        let sumPuFait = 0, targetPu = d.contrat.pushup.target * 5;
+                        
+                        d.tours.forEach(t => {
+                            sumSqFait += (t.squat?.fait || 0);
+                            sumPlFait += (t.plank?.fait || 0);
+                            sumPuFait += (t.pushup?.fait || 0);
+                        });
+
+                        let pSq = calcPercent(sumSqFait, targetSq);
+                        let pPl = calcPercent(sumPlFait, targetPl);
+                        let pPu = calcPercent(sumPuFait, targetPu);
+                        let moyGlobal = Math.round((pSq + pPl + pPu) / 3);
+
+                        listDiv.innerHTML += `
+                            <div class="card" style="padding:1rem;">
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; margin-bottom:0.5rem;">
+                                    <strong>Séance du ${dateStr}</strong>
+                                    <span class="${getBadgeClass(moyGlobal)}">${moyGlobal}%</span>
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                                    <span>SQ: ${sumSqFait}/${targetSq} <span class="${getBadgeClass(pSq)}">${pSq}%</span></span>
+                                    <span>PL: ${sumPlFait}/${targetPl}s <span class="${getBadgeClass(pPl)}">${pPl}%</span></span>
+                                    <span>PU: ${sumPuFait}/${targetPu} <span class="${getBadgeClass(pPu)}">${pPu}%</span></span>
+                                </div>
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:5px; text-align:right;">Juge: ${d.juge}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+            } catch (e) {
+                listDiv.innerHTML = '<p style="color:var(--danger); text-align:center;">Erreur de chargement.</p>';
+            }
+        }
+
         // ================== AFFICHER RESULTATS PROF ==================
+        let profResultsData = [];
+
         async function loadResults() {
             const tbody = document.getElementById('results-body');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">⏳ Chargement...</td></tr>';
             const classFilter = document.getElementById('filter-class').value;
             
             let query = db.collection('resultats');
-            if(classFilter) {
-                query = query.where('classe', '==', classFilter);
-            }
+            if(classFilter) query = query.where('classe', '==', classFilter);
 
             try {
                 const snapshot = await query.get();
                 tbody.innerHTML = '';
+                profResultsData = [];
+
                 if(snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Aucun résultat pour le moment.</td></tr>';
                     return;
@@ -656,16 +945,15 @@
                 let allResults = [];
                 snapshot.forEach(doc => { allResults.push(doc.data()); });
                 allResults.sort((a, b) => b.timestamp - a.timestamp);
+                profResultsData = allResults;
 
                 allResults.forEach(d => {
                     const dateObj = d.timestamp.toDate();
-                    const date = dateObj.toLocaleDateString('fr-FR') + ' ' + dateObj.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+                    const dateStr = dateObj.toLocaleDateString('fr-FR');
                     
                     let htmlScore = "";
                     
                     if(d.seance === "S1_5_TOURS" && d.tours && d.tours.length > 0) {
-                        
-                        // SÉCURITÉ ANTI-PLANTAGE
                         if (!d.tours[0].squat) {
                             htmlScore = `<span style="color:var(--text-muted); font-size: 0.8rem;">Ancien test (Format non compatible)</span>`;
                         } else {
@@ -673,45 +961,43 @@
                             let sumPlFait = 0, sumPlNorep = 0;
                             let sumPuFait = 0, sumPuNorep = 0;
                             
-                            let toursDetailsHtml = `<table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:0.5rem; border-collapse: collapse;">
-                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding:4px;">Tour</th><th style="padding:4px;">Squat</th><th style="padding:4px;">Planche</th><th style="padding:4px;">Push-Up</th></tr>`;
-                            
                             d.tours.forEach(t => {
                                 const sq = t.squat || {fait:0, norep:0};
                                 const pl = t.plank || {fait:0, norep:0};
                                 const pu = t.pushup || {fait:0, norep:0};
-
                                 sumSqFait += sq.fait; sumSqNorep += sq.norep;
                                 sumPlFait += pl.fait; sumPlNorep += pl.norep;
                                 sumPuFait += pu.fait; sumPuNorep += pu.norep;
-                                
-                                toursDetailsHtml += `<tr>
-                                    <td style="padding:2px; text-align:center; color:white;">T${t.tour}</td>
-                                    <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${sq.fait}</span>|<span style="color:var(--danger)">${sq.norep}</span></td>
-                                    <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${pl.fait}</span>|<span style="color:var(--danger)">${pl.norep}</span></td>
-                                    <td style="padding:2px; text-align:center;"><span style="color:var(--success)">${pu.fait}</span>|<span style="color:var(--danger)">${pu.norep}</span></td>
-                                </tr>`;
                             });
-                            toursDetailsHtml += `</table>`;
                             
                             let targetSq = d.contrat.squat.target * 5;
                             let targetPl = d.contrat.plank.target * 5;
                             let targetPu = d.contrat.pushup.target * 5;
 
+                            let pSq = calcPercent(sumSqFait, targetSq);
+                            let pPl = calcPercent(sumPlFait, targetPl);
+                            let pPu = calcPercent(sumPuFait, targetPu);
+                            let moyGlobal = Math.round((pSq + pPl + pPu) / 3);
+
                             htmlScore = `
-                                <div style="font-size:0.8rem; margin-bottom: 6px; color:var(--text-muted);">
-                                    Obj par tour: SQ(${d.contrat.squat.target}) | PL(${d.contrat.plank.target}) | PU(${d.contrat.pushup.target})
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                    <span style="font-weight:bold;">SCORE GLOBAL</span>
+                                    <span class="${getBadgeClass(moyGlobal)}">${moyGlobal}%</span>
                                 </div>
-                                <table style="width:100%; font-size:0.8rem; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:0.5rem;">
-                                    <tr><th style="padding:4px;text-align:left;">Atelier</th><th style="padding:4px;">✅ Total</th><th style="padding:4px;">❌ Fautes</th></tr>
-                                    <tr><td style="padding:4px;text-align:left;">SQ (N${d.contrat.squat.lvl})</td><td style="text-align:center; color:var(--success);">${sumSqFait} / ${targetSq}</td><td style="color:var(--danger);text-align:center;">${sumSqNorep}</td></tr>
-                                    <tr><td style="padding:4px;text-align:left;">PL (N${d.contrat.plank.lvl})</td><td style="text-align:center; color:var(--success);">${sumPlFait} / ${targetPl}</td><td style="color:var(--danger);text-align:center;">${sumPlNorep}</td></tr>
-                                    <tr><td style="padding:4px;text-align:left;">PU (N${d.contrat.pushup.lvl})</td><td style="text-align:center; color:var(--success);">${sumPuFait} / ${targetPu}</td><td style="color:var(--danger);text-align:center;">${sumPuNorep}</td></tr>
+                                <table style="width:100%; font-size:0.75rem; background:rgba(0,0,0,0.2); border-radius:8px; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="padding:4px;">SQ(N${d.contrat.squat.lvl}): <strong>${sumSqFait}/${targetSq}</strong> <span class="color-rouge">(❌${sumSqNorep})</span></td>
+                                        <td style="padding:4px; text-align:right;"><span class="${getBadgeClass(pSq)}">${pSq}%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:4px;">PL(N${d.contrat.plank.lvl}): <strong>${sumPlFait}/${targetPl}s</strong> <span class="color-rouge">(❌${sumPlNorep})</span></td>
+                                        <td style="padding:4px; text-align:right;"><span class="${getBadgeClass(pPl)}">${pPl}%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:4px;">PU(N${d.contrat.pushup.lvl}): <strong>${sumPuFait}/${targetPu}</strong> <span class="color-rouge">(❌${sumPuNorep})</span></td>
+                                        <td style="padding:4px; text-align:right;"><span class="${getBadgeClass(pPu)}">${pPu}%</span></td>
+                                    </tr>
                                 </table>
-                                <details>
-                                    <summary style="cursor:pointer; color:var(--secondary); font-size:0.8rem; font-weight:bold;">🔍 Voir le détail des 5 tours</summary>
-                                    ${toursDetailsHtml}
-                                </details>
                             `;
                         }
                     }
@@ -719,19 +1005,82 @@
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${d.classe}</strong></td>
-                            <td><span style="color:var(--primary); font-weight:bold;">A: ${d.athlete}</span><br><span style="color:var(--text-muted); font-size:0.75rem;">J: ${d.juge}</span></td>
-                            <td>${d.seance}<br><span style="color:var(--text-muted); font-size:0.75rem;">${date}</span></td>
-                            <td class="score-cell" style="padding: 0.5rem;">${htmlScore}</td>
+                            <td><span style="color:var(--primary); font-weight:bold;">${d.athlete}</span><br><span style="color:var(--text-muted); font-size:0.7rem;">J: ${d.juge}</span></td>
+                            <td style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</td>
+                            <td style="padding: 0.5rem;">${htmlScore}</td>
                         </tr>
                     `;
                 });
             } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger); text-align:center; padding: 2rem;">
-                    🚨 Erreur réseau: ${e.message}<br>
-                    <small>Vérifiez votre connexion internet ou les règles Firestore.</small>
-                </td></tr>`;
-                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger); text-align:center; padding: 2rem;">🚨 Erreur réseau: ${e.message}</td></tr>`;
             }
+        }
+
+        // ================== EXPORT PDF ==================
+        function exportPDF() {
+            const classFilter = document.getElementById('filter-class').value;
+            if(!classFilter) return showAlert("⚠️ Sélectionnez une classe spécifique avant d'exporter.");
+            if(profResultsData.length === 0) return showAlert("⚠️ Aucun résultat à exporter.");
+
+            document.getElementById('pdf-class-name').textContent = classFilter;
+            document.getElementById('pdf-date').textContent = new Date().toLocaleDateString('fr-FR');
+            
+            const tbody = document.getElementById('pdf-tbody');
+            tbody.innerHTML = '';
+
+            let athletesMap = new Map();
+            profResultsData.forEach(d => {
+                if(d.classe === classFilter && d.seance === "S1_5_TOURS" && d.tours && d.tours.length > 0 && d.tours[0].squat) {
+                    if(!athletesMap.has(d.athlete)) {
+                        athletesMap.set(d.athlete, d);
+                    }
+                }
+            });
+
+            let sortedAthletes = Array.from(athletesMap.values()).sort((a,b) => a.athlete.localeCompare(b.athlete));
+
+            sortedAthletes.forEach(d => {
+                let sumSq = 0, sumPl = 0, sumPu = 0;
+                d.tours.forEach(t => { 
+                    sumSq += (t.squat?.fait || 0); 
+                    sumPl += (t.plank?.fait || 0); 
+                    sumPu += (t.pushup?.fait || 0); 
+                });
+                
+                let targetSq = d.contrat.squat.target * 5;
+                let targetPl = d.contrat.plank.target * 5;
+                let targetPu = d.contrat.pushup.target * 5;
+
+                let pSq = calcPercent(sumSq, targetSq);
+                let pPl = calcPercent(sumPl, targetPl);
+                let pPu = calcPercent(sumPu, targetPu);
+                let moy = Math.round((pSq + pPl + pPu)/3);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${d.athlete}</strong></td>
+                        <td>${sumSq}/${targetSq} <span class="pdf-badge ${getPdfBadgeClass(pSq)}">${pSq}%</span></td>
+                        <td>${sumPl}/${targetPl}s <span class="pdf-badge ${getPdfBadgeClass(pPl)}">${pPl}%</span></td>
+                        <td>${sumPu}/${targetPu} <span class="pdf-badge ${getPdfBadgeClass(pPu)}">${pPu}%</span></td>
+                        <td><span class="pdf-badge ${getPdfBadgeClass(moy)}">${moy}%</span></td>
+                    </tr>
+                `;
+            });
+
+            const element = document.getElementById('pdf-container');
+            element.style.display = 'block';
+
+            var opt = {
+              margin:       10,
+              filename:     `Bilan_CrossTraining_${classFilter}.pdf`,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; 
+            });
         }
     </script>
 </body>
