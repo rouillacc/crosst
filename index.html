@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <!-- Le zoom natif est toujours bloqué pour l'UI globale -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cross Training - Évaluation Digitale</title>
     
@@ -144,7 +145,7 @@
         .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:999; display:none; justify-content:center; align-items:center; padding:1rem; }
         .modal-content { background: var(--card-dark); border: 1px solid var(--secondary); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
 
-        /* PDF EXPORT STYLES (Light theme for printing) */
+        /* PDF EXPORT STYLES */
         #pdf-container { display: none; background: white; color: black; padding: 20px; font-family: sans-serif; }
         #pdf-container table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
         #pdf-container th, #pdf-container td { border: 1px solid #ccc; padding: 10px; text-align: center; }
@@ -160,6 +161,52 @@
 
         /* ALERT CUSTOM */
         .custom-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--card-dark); border: 1px solid var(--secondary); padding: 1rem 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; gap: 10px; font-weight: bold; text-align:center; }
+        
+        /* --- NOUVEAU : STYLES DE LA LIGHTBOX IMAGE --- */
+        .image-lightbox {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000; /* Toujours par-dessus tout */
+            display: none;
+            justify-content: center;
+            align-items: center;
+            /* Permettre le scroll si l'image est zoomée */
+            overflow: auto; 
+            /* Astuce pour autoriser le pinch-to-zoom uniquement ici (iOS) */
+            touch-action: auto; 
+        }
+        .image-lightbox img {
+            max-width: 100%;
+            /* Ne pas brider la hauteur pour permettre de zoomer librement */
+            height: auto;
+            transform-origin: center center;
+            transition: transform 0.2s ease-out;
+        }
+        .close-lightbox-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 2001;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Petit ajout pour signifier qu'on peut cliquer sur l'image */
+        .zoomable-img {
+            cursor: zoom-in;
+        }
+
     </style>
 </head>
 <body>
@@ -177,6 +224,12 @@
             <div id="modal-body" style="font-size:0.9rem;"></div>
             <button class="btn-main" style="margin-top:1.5rem;" onclick="document.getElementById('prof-modal').style.display='none'">Fermer</button>
         </div>
+    </div>
+    
+    <!-- LIGHTBOX POUR IMAGES (ZOOM) -->
+    <div class="image-lightbox" id="image-lightbox" onclick="closeImage()">
+        <button class="close-lightbox-btn" onclick="closeImage(event)">×</button>
+        <img id="lightbox-img" src="" alt="Image agrandie">
     </div>
 
     <div class="container">
@@ -299,9 +352,9 @@
         <!-- ================= VUE RÉFÉRENTIEL ================= -->
         <div id="view-reference" class="view">
             <h2 id="ref-title">📖 Référentiel</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Critères de validation.</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Touchez une image pour l'agrandir et zoomer dessus.</p>
             
-            <div id="ref-content"></div> <!-- Injecté en JS -->
+            <div id="ref-content"></div> 
 
             <button class="btn-main" onclick="goBackFromReferentiel()">Retour</button>
         </div>
@@ -453,8 +506,31 @@
         let currentPayload = null; 
         let progressChartInstance = null;
         let viewBeforeReferentiel = "";
-        let profMatrixData = []; // Stockage pour le PDF
+        let profMatrixData = []; 
         let currentRoster = [];
+
+        // --- GESTION DE L'IMAGE ZOOMABLE (LIGHTBOX) ---
+        // L'astuce est de manipuler la meta viewport dynamiquement
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        
+        function openImage(imgUrl) {
+            document.getElementById('lightbox-img').src = imgUrl;
+            document.getElementById('image-lightbox').style.display = 'flex';
+            
+            // On autorise temporairement le zoom (pinch-to-zoom) du navigateur sur cette vue
+            viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes");
+        }
+        
+        function closeImage(event) {
+            // Si event existe (clic), empêcher la propagation pour ne pas re-cliquer dessous
+            if(event) event.stopPropagation();
+            
+            document.getElementById('image-lightbox').style.display = 'none';
+            document.getElementById('lightbox-img').src = "";
+            
+            // On rebloque le zoom pour l'application classique
+            viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no");
+        }
 
         // --- UTILITAIRES ---
         function navTo(viewId) {
@@ -492,7 +568,7 @@
             return p > 100 ? 100 : p; 
         }
 
-        // ================== ESPACE PROF : LOGIN & IMPORT ==================
+        // ================== ESPACE PROF ==================
         function checkProf() {
             if(btoa(document.getElementById('prof-code').value) === 'Q1QyMDI2') {
                 navTo('view-prof-dashboard');
@@ -611,7 +687,6 @@
             currentSessionId = sid;
             const cfg = SESSIONS[sid];
             
-            // Mise à jour de l'interface CONTRAT
             document.getElementById('setup-ex1-name').textContent = `1. ${cfg.exos[0].name.toUpperCase()}`;
             document.getElementById('setup-ex1-target').placeholder = `Ex: 15 (${cfg.exos[0].unit})`;
             
@@ -624,18 +699,20 @@
             navTo('view-form-setup');
         }
 
-        // ================== RÉFÉRENTIEL (IMAGES) ==================
+        // ================== RÉFÉRENTIEL (IMAGES ZOOMABLES) ==================
         function navToReferentiel(fromView) {
             viewBeforeReferentiel = fromView;
-            const cfg = SESSIONS[currentSessionId]; // Affiche les images de la séance en cours
+            const cfg = SESSIONS[currentSessionId]; 
             document.getElementById('ref-title').textContent = `📖 Référentiel - ${cfg.title}`;
             
             let html = "";
             cfg.exos.forEach((ex, idx) => {
+                let imgUrl = `https://drive.google.com/thumbnail?id=${ex.img}&sz=w1600`; // Grande taille pré-chargée
                 html += `
                 <div class="card">
                     <h3 style="color:var(--secondary); margin-top:0;">${idx+1}. ${ex.name.toUpperCase()}</h3>
-                    <img src="https://drive.google.com/thumbnail?id=${ex.img}&sz=w1200" alt="Référentiel ${ex.name}" style="width:100%; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <!-- On ajoute l'événement onclick pour ouvrir la Lightbox -->
+                    <img class="zoomable-img" src="${imgUrl}" alt="Référentiel ${ex.name}" style="width:100%; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);" onclick="openImage('${imgUrl}')">
                 </div>`;
             });
             document.getElementById('ref-content').innerHTML = html;
@@ -831,7 +908,6 @@
             try {
                 await db.collection('resultats').add(currentPayload);
                 showAlert("✅ Résultats enregistrés avec succès !");
-                // Reset setup
                 document.getElementById('setup-ex1-target').value = '';
                 document.getElementById('setup-ex2-target').value = '';
                 document.getElementById('setup-ex3-target').value = '';
@@ -883,9 +959,9 @@
 
                 let globalScores = [];
                 let chartLabels = [];
-                let chartData = []; // Moyenne par séance pour la progression
+                let chartData = []; 
 
-                let graphData = [...histData].reverse(); // Ordre chrono pour le graph
+                let graphData = [...histData].reverse(); 
                 
                 graphData.forEach((d, index) => {
                      let label = `S${index+1} (${d.seance})`;
@@ -894,7 +970,6 @@
                      if(d.tours && d.tours.length > 0) {
                         let sum1 = 0, sum2 = 0, sum3 = 0;
                         d.tours.forEach(t => { 
-                            // Compatibilité anciens / nouveaux noms
                             sum1 += (t.ex1?.fait || t.squat?.fait || 0); 
                             sum2 += (t.ex2?.fait || t.plank?.fait || 0); 
                             sum3 += (t.ex3?.fait || t.pushup?.fait || 0); 
@@ -911,7 +986,6 @@
                      }
                 });
 
-                // Stats globales
                 let totalAvg = globalScores.length > 0 ? Math.round(globalScores.reduce((a,b)=>a+b,0)/globalScores.length) : 0;
                 let profil = getAthleteTitle(totalAvg);
 
@@ -930,7 +1004,6 @@
                     </div>
                 `;
 
-                // Dessin du graph (Bar chart pour le fun)
                 const ctx = document.getElementById('progressChart').getContext('2d');
                 if(progressChartInstance) progressChartInstance.destroy();
                 progressChartInstance = new Chart(ctx, {
@@ -944,14 +1017,9 @@
                             borderRadius: 6
                         }]
                     },
-                    options: { 
-                        responsive: true, 
-                        plugins: { legend: { display: false } }, 
-                        scales: { y: { min:0, max:100, ticks: { color: '#94a3b8'} }, x: { ticks: { color: '#94a3b8'} } } 
-                    }
+                    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min:0, max:100, ticks: { color: '#94a3b8'} }, x: { ticks: { color: '#94a3b8'} } } }
                 });
 
-                // Liste textuelle
                 listDiv.innerHTML = '';
                 histData.forEach(d => {
                     const dateStr = d.timestamp.toDate().toLocaleDateString('fr-FR');
@@ -969,7 +1037,6 @@
                         let p1 = calcPercent(sum1, t1); let p2 = calcPercent(sum2, t2); let p3 = calcPercent(sum3, t3);
                         let moy = Math.round((p1 + p2 + p3) / 3);
 
-                        // Récupération dynamique des noms
                         let n1 = "EX1", n2 = "EX2", n3 = "EX3";
                         if(d.seance === "S1" || d.seance === "S1_5_TOURS") { n1 = "Squat"; n2 = "Planche"; n3 = "PushUp"; }
                         if(d.seance === "S2") { n1 = "Jack"; n2 = "Climber"; n3 = "Fentes"; }
@@ -992,7 +1059,7 @@
             } catch (e) { listDiv.innerHTML = '<p style="color:var(--danger); text-align:center;">Erreur de chargement.</p>'; }
         }
 
-        // ================== TABLEAU PROFESSEUR (MATRICE CLASSE) ==================
+        // ================== TABLEAU PROFESSEUR ==================
         let profRawData = []; 
 
         async function loadClassMatrix() {
@@ -1007,7 +1074,6 @@
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">⏳ Construction du tableau...</td></tr>';
             
             try {
-                // 1. Récupérer la liste complète des élèves de la classe
                 const classDoc = await db.collection('classes').doc(classId).get();
                 if(!classDoc.exists) {
                     tbody.innerHTML = '<tr><td colspan="5" style="color:var(--danger);">Classe introuvable.</td></tr>';
@@ -1015,24 +1081,20 @@
                 }
                 currentRoster = classDoc.data().students || [];
                 
-                // 2. Récupérer tous les résultats de cette classe
                 const snapshot = await db.collection('resultats').where('classe', '==', classId).get();
                 profRawData = [];
                 snapshot.forEach(doc => profRawData.push(doc.data()));
                 
-                // 3. Regrouper par élève et garder la meilleure/dernière perf de chaque séance
                 let studentData = {};
                 currentRoster.forEach(s => { studentData[s] = { S1: null, S2: null }; });
 
-                // On trie par date croissante, ainsi la dernière écriture écrasera la précédente dans notre Map (on garde le test le plus récent)
                 profRawData.sort((a,b) => a.timestamp - b.timestamp);
                 
                 profRawData.forEach(d => {
                     if(studentData[d.athlete] !== undefined && d.tours && d.tours.length > 0) {
-                        let isOldS1 = d.seance === "S1_5_TOURS"; // Compatibilité
+                        let isOldS1 = d.seance === "S1_5_TOURS"; 
                         let sid = isOldS1 ? "S1" : d.seance;
                         
-                        // Calcul de la moyenne
                         let sum1=0, sum2=0, sum3=0;
                         d.tours.forEach(t => {
                             sum1 += (t.ex1?.fait || t.squat?.fait || 0);
@@ -1051,7 +1113,6 @@
                     }
                 });
 
-                // 4. Construire l'affichage
                 tbody.innerHTML = '';
                 currentRoster.forEach(athlete => {
                     let s1 = studentData[athlete].S1;
@@ -1066,8 +1127,6 @@
                     else if(s2) globalMoy = s2.moy;
 
                     let globalHtml = globalMoy !== null ? `<span class="badge ${getBadgeClass(globalMoy)}" style="font-size:1rem;">${globalMoy}%</span>` : `-`;
-
-                    // On encode le nom pour éviter les bugs avec les espaces ou apostrophes dans la fonction onclick
                     let safeName = encodeURIComponent(athlete);
 
                     tbody.innerHTML += `
@@ -1083,7 +1142,7 @@
                     `;
                 });
                 
-                profMatrixData = studentData; // Sauvegarde pour PDF
+                profMatrixData = studentData; 
 
             } catch (e) {
                 tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger);">Erreur réseau.</td></tr>`;
@@ -1131,7 +1190,6 @@
                     }
                 });
             }
-            
             modalBody.innerHTML = html;
             document.getElementById('prof-modal').style.display = 'flex';
         }
@@ -1144,7 +1202,6 @@
 
             document.getElementById('pdf-class-name').textContent = classId;
             document.getElementById('pdf-date').textContent = new Date().toLocaleDateString('fr-FR');
-            
             const tbody = document.getElementById('pdf-tbody');
             tbody.innerHTML = '';
 
@@ -1162,30 +1219,18 @@
                 
                 let gHtml = globalMoy !== null ? `<span class="pdf-b ${getPdfBadgeClass(globalMoy)}">${globalMoy}%</span>` : `-`;
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${athlete}</td>
-                        <td>${s1Html}</td>
-                        <td>${s2Html}</td>
-                        <td>${gHtml}</td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1Html}</td><td>${s2Html}</td><td>${gHtml}</td></tr>`;
             });
 
             const element = document.getElementById('pdf-container');
             element.style.display = 'block';
 
             var opt = {
-              margin:       10,
-              filename:     `Bilan_Global_EPS_${classId}.pdf`,
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2 },
-              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+              margin: 10, filename: `Bilan_Global_EPS_${classId}.pdf`, image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.display = 'none'; 
-            });
+            html2pdf().set(opt).from(element).save().then(() => { element.style.display = 'none'; });
         }
     </script>
 </body>
