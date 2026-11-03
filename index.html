@@ -127,7 +127,7 @@
         .file-upload-wrapper input[type="file"] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; height: 100%; cursor: pointer;}
         .file-upload-text { color: var(--secondary); font-weight: 600; }
 
-        /* COMPTEURS COMPACTS POUR LES TOURS (CASES VIDES) */
+        /* COMPTEURS COMPACTS POUR LES TOURS */
         .tour-table { width: 100%; border-collapse: collapse; margin-bottom: 0.5rem; }
         .tour-table th { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); background: transparent; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
         .tour-table td { padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; vertical-align: middle; }
@@ -181,7 +181,7 @@
         table.prof-table th { background-color: rgba(0,0,0,0.3); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem;}
         table.prof-table td { color: var(--text-main); }
         
-        /* PDF EXPORT STYLES (Light theme for printing) */
+        /* PDF EXPORT STYLES */
         #pdf-container { display: none; background: white; color: black; padding: 20px; font-family: sans-serif; }
         #pdf-container table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         #pdf-container th, #pdf-container td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -198,9 +198,8 @@
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: var(--card-dark); border: 1px solid var(--secondary);
             padding: 1rem 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            z-index: 1000; display: none; align-items: center; gap: 10px; font-weight: bold;
+            z-index: 1000; display: none; align-items: center; gap: 10px; font-weight: bold; text-align:center;
         }
-
     </style>
 </head>
 <body>
@@ -231,7 +230,6 @@
             <div class="card">
                 <h2>Accès Sécurisé</h2>
                 <label>Code Professeur :</label>
-                <!-- Code hyper-sécurisé : autocomplete bloqué, le champ se vide au focus -->
                 <input type="password" id="prof-code" placeholder="Code secret..." autocomplete="new-password" onfocus="this.value=''" onkeypress="if(event.key === 'Enter') checkProf()">
                 <button class="btn-main prof" onclick="checkProf()">Valider</button>
                 <button class="btn-secondary" onclick="navTo('view-home')">Retour</button>
@@ -240,7 +238,6 @@
 
         <!-- ================= VUE PROF : DASHBOARD ================= -->
         <div id="view-prof-dashboard" class="view">
-            
             <div class="card">
                 <h2>📥 Importer une classe</h2>
                 <label>1. Nom de la classe :</label>
@@ -272,7 +269,6 @@
                     </table>
                 </div>
             </div>
-
             <button class="btn-secondary" onclick="navTo('view-home')">Déconnexion</button>
         </div>
 
@@ -309,23 +305,54 @@
         <!-- ================= VUE ÉLÈVE : MENU ================= -->
         <div id="view-student-menu" class="view">
             <div class="card" style="text-align: center;">
-                <h2 style="margin-bottom: 0.5rem;">Séance à évaluer</h2>
+                <h2 style="margin-bottom: 0.5rem;">Espace Évaluation</h2>
                 <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
                     <span style="color:var(--text-muted); font-size:0.9rem;">Juge :</span> <strong id="display-judge" style="color:var(--secondary);"></strong><br>
                     <span style="color:var(--text-muted); font-size:0.9rem;">Athlète :</span> <strong id="display-athlete" style="color:var(--primary);"></strong>
                 </div>
                 
                 <button class="btn-main" onclick="navTo('view-form-s1-setup')">🏋️ Démarrer Évaluation (5 Tours)</button>
+                
+                <button class="btn-main" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);" onclick="navToReferentiel('view-student-menu')">📖 Voir le Référentiel des Niveaux</button>
+                
                 <button class="btn-main prof" onclick="loadHistorique()">📈 Voir l'historique de l'athlète</button>
                 
                 <button class="btn-secondary" onclick="navTo('view-student-setup')">Changer d'élèves</button>
             </div>
         </div>
 
+        <!-- ================= VUE RÉFÉRENTIEL (IMAGES DU DRIVE) ================= -->
+        <div id="view-reference" class="view">
+            <h2>📖 Référentiel des Niveaux</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Critères de validation pour chaque atelier.</p>
+            
+            <!-- Air Squat -->
+            <div class="card">
+                <h3 style="color: var(--secondary); margin-top:0;">1. AIR SQUAT</h3>
+                <img src="https://drive.google.com/thumbnail?id=1osaB_Lq4BvN-6FuxxFlFrKgGOmXuW01t&sz=w1200" alt="Référentiel Squat" style="width:100%; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+
+            <!-- Planche -->
+            <div class="card">
+                <h3 style="color: var(--secondary); margin-top:0;">2. PLANCHE</h3>
+                <img src="https://drive.google.com/thumbnail?id=1lMLRyOId7k2vckJ8j17Lsl1yKAgxOwgp&sz=w1200" alt="Référentiel Planche" style="width:100%; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+
+            <!-- Push-Up -->
+            <div class="card">
+                <h3 style="color: var(--secondary); margin-top:0;">3. PUSH-UP</h3>
+                <img src="https://drive.google.com/thumbnail?id=1BALlDysqZKpwzOsr1G_PRlA1dTyEru-C&sz=w1200" alt="Référentiel Push-Up" style="width:100%; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+
+            <button class="btn-main" onclick="goBackFromReferentiel()">Retour</button>
+        </div>
+
         <!-- ================= VUE ÉLÈVE : ÉTAPE 1 (CONTRAT) ================= -->
         <div id="view-form-s1-setup" class="view">
             <h2 style="text-align: center; color: var(--primary);">📋 ÉTAPE 1 : LE CONTRAT</h2>
             <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">L'athlète annonce ses objectifs <strong>par tour</strong>.</p>
+            
+            <button class="btn-secondary" style="margin-bottom:1.5rem; color:white; border-color:var(--primary);" onclick="navToReferentiel('view-form-s1-setup')">📖 Rappel : Voir les Niveaux en Images</button>
 
             <div class="card">
                 <h3 style="color: var(--secondary); margin-top: 0; display:flex; justify-content:space-between; align-items:center;">
@@ -438,6 +465,7 @@
         let extractedStudents = [];
         let currentPayload = null; 
         let progressChartInstance = null;
+        let viewBeforeReferentiel = "";
 
         // --- UTILITAIRES ---
         function navTo(viewId) {
@@ -445,6 +473,15 @@
             document.getElementById(viewId).classList.add('active');
             if(viewId === 'view-student-setup') fetchClasses();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function navToReferentiel(fromView) {
+            viewBeforeReferentiel = fromView;
+            navTo('view-reference');
+        }
+        function goBackFromReferentiel() {
+            if(viewBeforeReferentiel) navTo(viewBeforeReferentiel);
+            else navTo('view-student-menu');
         }
 
         function showAlert(msg) {
@@ -475,7 +512,6 @@
 
         // ================== ESPACE PROF ==================
         function checkProf() {
-            // "CT2026" en base64 est 'Q1QyMDI2'
             if(btoa(document.getElementById('prof-code').value) === 'Q1QyMDI2') {
                 navTo('view-prof-dashboard');
                 fetchClassesForFilter();
@@ -494,7 +530,6 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                // Correction de l'expression régulière (sur une seule ligne !)
                 const lines = text.split(/\r\n|\n|\r/);
                 extractedStudents = [];
                 
