@@ -5,10 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cross Training - Évaluation Digitale</title>
     
+    <!-- PWA & iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CT EPS">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192'><rect width='192' height='192' fill='%230f172a'/><text x='50%' y='50%' font-family='sans-serif' font-weight='bold' font-size='90' text-anchor='middle' dy='.3em' fill='%23f97316'>CT</text></svg>">
+    
+    <!-- 1. Lien vers le fichier Manifest (Pour l'installation) -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- 2. Enregistrement du Service Worker (Pour le hors-ligne et l'installation) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('sw.js').then(function(registration) {
+            console.log('ServiceWorker enregistré avec succès !');
+          }, function(err) {
+            console.log('Échec de l\'enregistrement du ServiceWorker :', err);
+          });
+        });
+      }
+    </script>
+
+    <!-- Police moderne -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- html2pdf for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -45,6 +75,7 @@
         .btn-main.prof { background: linear-gradient(135deg, var(--secondary), #2563eb); box-shadow: 0 4px 15px var(--secondary-glow); }
         .btn-main.s2 { background: linear-gradient(135deg, var(--tertiary), #059669); box-shadow: 0 4px 15px var(--tertiary-glow); }
         .btn-main.s3 { background: linear-gradient(135deg, var(--quaternary), #6d28d9); box-shadow: 0 4px 15px var(--quaternary-glow); }
+        .btn-install { background: rgba(16, 185, 129, 0.15); border: 2px solid var(--tertiary); color: var(--tertiary); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
         
         .btn-secondary { display: block; width: 100%; padding: 1rem; margin-top: 1rem; background-color: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-secondary:hover { background-color: rgba(255,255,255,0.05); }
@@ -85,7 +116,7 @@
         .badge-gris { background-color: rgba(255, 255, 255, 0.1); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.2); font-size: 0.75rem;}
 
         .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--card-dark); margin-bottom:1.5rem;}
-        table.prof-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 720px;}
+        table.prof-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px;}
         table.prof-table th, table.prof-table td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem; text-align: center; vertical-align: middle;}
         table.prof-table th { background-color: rgba(0,0,0,0.3); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; white-space: nowrap;}
         table.prof-table td:first-child { text-align: left; font-weight: bold; color: var(--text-main); }
@@ -116,28 +147,6 @@
 
         .color-rouge { color: var(--danger); font-weight: bold; }
         .color-vert { color: var(--success); font-weight: bold; }
-
-        /* Tableau de bord professeur : lisible sur ordinateur, tablette et mobile */
-        body.prof-mode .container { max-width: 1240px; padding-left: 1.25rem; padding-right: 1.25rem; }
-        body.prof-mode header h1 { font-size: 1.25rem; }
-        .prof-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin:1.2rem 0; }
-        .prof-heading h2 { margin:0; text-align:left; }
-        .prof-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:1rem 0 1.25rem; }
-        .prof-kpi { background:linear-gradient(145deg,#26364e,#1e293b); border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:1rem; min-width:0; }
-        .prof-kpi-label { color:var(--text-muted); font-size:.78rem; font-weight:600; }
-        .prof-kpi-value { font-size:1.65rem; font-weight:900; margin-top:.2rem; }
-        .prof-tools { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:0 0 1rem; }
-        .prof-tools input { flex:1; min-width:220px; margin:0; }
-        .prof-table th,.prof-table td { padding:.7rem .65rem !important; }
-        .prof-table td:first-child { min-width:175px; }
-        .session-grade { margin-top:.55rem; display:flex; align-items:center; justify-content:center; gap:4px; }
-        .teacher-grade { width:76px; padding:.55rem .35rem; margin:0; text-align:center; font-weight:800; border-radius:8px; border:1px solid #64748b; background:#fff; color:#0f172a; }
-        .teacher-comment { width:190px; min-width:150px; padding:.55rem; margin:0; border-radius:8px; border:1px solid #64748b; background:#fff; color:#0f172a; font-size:.8rem; }
-        .save-state { display:block; font-size:.68rem; color:var(--text-muted); min-height:1em; margin-top:3px; }
-        .btn-detail { border:0; background:#2563eb; color:white; border-radius:8px; padding:.55rem .7rem; cursor:pointer; font-weight:700; }
-        .prof-note { color:var(--text-muted); font-size:.78rem; margin:.3rem 0 .8rem; }
-        @media(max-width:760px) { .prof-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } body.prof-mode .container { padding:.8rem .55rem 4rem; } .prof-kpi { padding:.75rem; } .prof-kpi-value { font-size:1.35rem; } }
-        @media(max-width:420px) { .prof-tools input { min-width:100%; } .prof-heading { align-items:stretch; } }
     </style>
 </head>
 <body>
@@ -148,6 +157,7 @@
 
     <div class="custom-alert" id="custom-alert"><span id="alert-msg">Message</span></div>
 
+    <!-- MODAL PROF (DETAILS) -->
     <div class="modal-overlay" id="prof-modal">
         <div class="modal-content">
             <h2 id="modal-title" style="color:var(--primary); margin-bottom:1rem;">Détails de l'élève</h2>
@@ -156,6 +166,18 @@
         </div>
     </div>
     
+    <!-- MODAL INSTALLATION PWA -->
+    <div class="modal-overlay" id="install-modal">
+        <div class="modal-content" style="text-align: center;">
+            <h2 style="color:var(--primary); margin-bottom: 1rem;">Installer l'App 📲</h2>
+            <p id="install-instructions" style="line-height:1.6; color:var(--text-main);">
+                Pour un accès rapide hors-ligne, ajoutez cette application sur votre écran d'accueil.
+            </p>
+            <button class="btn-main" style="margin-top:1.5rem;" onclick="document.getElementById('install-modal').style.display='none'">Compris !</button>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX IMAGE -->
     <div class="image-lightbox" id="image-lightbox" onclick="closeImage()">
         <button class="close-lightbox-btn" onclick="closeImage(event)">×</button>
         <img id="lightbox-img" src="" alt="Image agrandie">
@@ -163,6 +185,7 @@
 
     <div class="container">
         
+        <!-- VUE ACCUEIL -->
         <div id="view-home" class="view active">
             <div style="text-align: center; margin-bottom: 2.5rem; margin-top:1rem;">
                 <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem; font-weight:900;">Bienvenue</h2>
@@ -171,14 +194,19 @@
             
             <button class="btn-main" onclick="navTo('view-student-setup')">🎓 Espace Élève</button>
             
-            <!-- NOUVEAU BOUTON : REFERENTIEL GLOBAL SUR L'ACCUEIL -->
             <button class="btn-main" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);" onclick="navToReferentiel('view-home', true)">
                 📖 Référentiel Global<br><span style="font-size:0.8rem; font-weight:normal;">Images & Critères Anti No-Rep</span>
             </button>
             
-            <button class="btn-main prof" style="margin-top: 2rem;" onclick="navTo('view-prof-login')">⚙️ Espace Professeur</button>
+            <button class="btn-main prof" style="margin-top: 1rem;" onclick="navTo('view-prof-login')">⚙️ Espace Professeur</button>
+
+            <!-- BOUTON INSTALLATION PWA (Caché par défaut) -->
+            <button class="btn-main btn-install" id="btn-install" style="display: none; margin-top: 2rem;" onclick="installApp()">
+                📲 Installer l'application sur ce téléphone
+            </button>
         </div>
 
+        <!-- VUE PROF LOGIN -->
         <div id="view-prof-login" class="view">
             <div class="card">
                 <h2>Accès Sécurisé</h2>
@@ -189,6 +217,7 @@
             </div>
         </div>
 
+        <!-- VUE PROF DASHBOARD -->
         <div id="view-prof-dashboard" class="view">
             <div class="card" style="padding:1rem;">
                 <h2 style="font-size:1.1rem; margin-bottom:1rem; text-align:left;">📥 Gestion des classes</h2>
@@ -202,13 +231,7 @@
             </div>
             
             <div>
-                <div class="prof-heading"><h2>📊 Suivi de la classe</h2><span class="prof-note">Résultats, appréciations et notes au même endroit</span></div>
-                <div class="prof-kpis">
-                    <div class="prof-kpi"><div class="prof-kpi-label">ÉLÈVES</div><div class="prof-kpi-value" id="kpi-students">—</div></div>
-                    <div class="prof-kpi"><div class="prof-kpi-label">SÉANCES RÉALISÉES</div><div class="prof-kpi-value" id="kpi-sessions">—</div></div>
-                    <div class="prof-kpi"><div class="prof-kpi-label">RÉSULTATS SAISIS</div><div class="prof-kpi-value" id="kpi-completion">—</div></div>
-                    <div class="prof-kpi"><div class="prof-kpi-label">MOYENNE CLASSE</div><div class="prof-kpi-value" id="kpi-average">—</div></div>
-                </div>
+                <h2 style="text-align:left;">📊 Tableau de classe</h2>
                 <div style="display:flex; gap:10px;">
                     <div class="select-wrapper" style="flex:1;">
                         <select id="filter-class" onchange="loadClassMatrix()">
@@ -219,11 +242,6 @@
                 
                 <button class="btn-secondary" style="margin-bottom: 1.5rem; border-color: var(--secondary); color: var(--text-main); background:var(--secondary);" onclick="exportPDF()">📄 Exporter le Bilan (PDF)</button>
 
-                <div class="prof-tools">
-                    <input type="search" id="student-search" placeholder="🔎 Rechercher un élève…" aria-label="Rechercher un élève" oninput="filterTeacherRows()">
-                    <button class="btn-secondary" style="width:auto;margin:0;padding:.8rem 1rem;border-color:var(--secondary);" onclick="loadClassMatrix()">↻ Actualiser</button>
-                </div>
-                <p class="prof-note">Saisis une note sur 5 pour chaque séance. Les notes et appréciations sont enregistrées automatiquement dans Firebase lorsque tu quittes le champ.</p>
                 <div class="table-wrapper">
                     <table class="prof-table" id="matrix-table">
                         <thead>
@@ -232,14 +250,12 @@
                                 <th>S1 <br><span style="font-size:0.65rem; font-weight:normal;">(Squat/Pl/Push)</span></th>
                                 <th>S2 <br><span style="font-size:0.65rem; font-weight:normal;">(Jack/Cl/Fente)</span></th>
                                 <th>S3 <br><span style="font-size:0.65rem; font-weight:normal;">(Gainage/Sup/Crunch)</span></th>
-                                <th>Réussite</th>
-                                
-                                <th>Appréciation</th>
+                                <th>Moyenne</th>
                                 <th>Détails</th>
                             </tr>
                         </thead>
                         <tbody id="matrix-body">
-                            <tr><td colspan="7" style="color:var(--text-muted);">Sélectionnez une classe pour afficher les résultats.</td></tr>
+                            <tr><td colspan="6" style="color:var(--text-muted);">Sélectionnez une classe pour afficher les résultats.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -247,6 +263,7 @@
             <button class="btn-secondary" onclick="navTo('view-home')">Se déconnecter</button>
         </div>
 
+        <!-- VUE ELEVE SETUP -->
         <div id="view-student-setup" class="view">
             <div class="card">
                 <h2>Préparation</h2>
@@ -267,6 +284,7 @@
             </div>
         </div>
 
+        <!-- VUE ELEVE MENU -->
         <div id="view-student-menu" class="view">
             <div class="card" style="text-align: center;">
                 <h2 style="margin-bottom: 0.5rem;">Espace Évaluation</h2>
@@ -292,6 +310,7 @@
             </div>
         </div>
 
+        <!-- VUE REFERENTIEL -->
         <div id="view-reference" class="view">
             <h2 id="ref-title">📖 Référentiel</h2>
             <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Touchez une image pour l'agrandir et zoomer dessus.</p>
@@ -299,6 +318,7 @@
             <button class="btn-main" onclick="goBackFromReferentiel()">Retour</button>
         </div>
 
+        <!-- VUE ELEVE ETAPE 1 (CONTRAT) -->
         <div id="view-form-setup" class="view">
             <h2 style="text-align: center; color: var(--primary);">📋 ÉTAPE 1 : LE CONTRAT</h2>
             <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">L'athlète annonce ses objectifs <strong>par tour</strong>.</p>
@@ -338,6 +358,7 @@
             <button class="btn-secondary" onclick="navTo('view-student-menu')">Retour au menu</button>
         </div>
 
+        <!-- VUE ELEVE ETAPE 2 (WOD) -->
         <div id="view-form-eval" class="view">
             <h2 style="text-align: center; color: var(--primary);" id="eval-title">🔥 ÉTAPE 2 : LE WOD</h2>
             <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 8px;">
@@ -350,6 +371,7 @@
             <button class="btn-secondary" onclick="navTo('view-form-setup')">⬅️ Modifier le contrat</button>
         </div>
 
+        <!-- VUE ELEVE BILAN -->
         <div id="view-student-bilan" class="view">
             <h2 style="text-align: center; color: var(--primary);">📊 BILAN DE LA SÉANCE</h2>
             <div id="bilan-content"></div>
@@ -358,6 +380,7 @@
             <button class="btn-secondary" onclick="navTo('view-form-eval')">⬅️ Corriger les scores</button>
         </div>
 
+        <!-- VUE ELEVE HISTORIQUE -->
         <div id="view-student-historique" class="view">
             <h2 style="text-align: center; color: var(--primary);">🏆 PROFIL ATHLÈTE</h2>
             <p style="text-align: center; color: white; font-size: 1.2rem; font-weight:800; margin-bottom: 0.5rem;" id="hist-athlete-name"></p>
@@ -379,6 +402,7 @@
 
     </div>
 
+    <!-- PDF -->
     <div id="pdf-container">
         <h2>Bilan Général EPS - Classe : <span id="pdf-class-name"></span></h2>
         <p style="text-align:center; color:#555;">Date d'export : <span id="pdf-date"></span></p>
@@ -390,7 +414,6 @@
                     <th>SÉANCE 2</th>
                     <th>SÉANCE 3</th>
                     <th>BILAN GLOBAL</th>
-                    <th>NOTE S1 /5</th><th>NOTE S2 /5</th><th>NOTE S3 /5</th>
                 </tr>
             </thead>
             <tbody id="pdf-tbody"></tbody>
@@ -406,29 +429,9 @@
             messagingSenderId: "261521832974",
             appId: "1:261521832974:web:95d1fd4c26618dc7d3905f"
         };
-        let db = null;
-        let firebaseReady = false;
-        try {
-            if (typeof firebase !== 'undefined' && firebase.apps) {
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                firebaseReady = true;
-            } else {
-                console.error('Firebase SDK indisponible : vérifiez la connexion Internet ou le chargement des scripts.');
-            }
-        } catch (firebaseError) {
-            console.error('Initialisation Firebase impossible :', firebaseError);
-        }
+        if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        function requireFirebase() {
-            if (!firebaseReady || !db) {
-                showAlert('⚠️ Connexion Firebase indisponible. Vérifiez Internet puis rechargez la page.');
-                return false;
-            }
-            return true;
-        }
-
-        // Ajout des indices (hints) pour éviter les No-Rep
         const SESSIONS = {
             'S1': {
                 id: 'S1', title: 'S1 : Renfo',
@@ -443,7 +446,7 @@
                 exos: [
                     { id: 'ex1', name: 'Jumping Jack', unit: 'rep', step: 1, img: '1UHkbUq4QUXcDkjc9PFMwv0mwaCM61YoC', hint: "Mains se touchent en haut, pieds totalement joints au retour." },
                     { id: 'ex2', name: 'Mountain Climber', unit: 'rep', step: 1, img: '1fJehZ7cytRqJIxe2T8xC6afcEilWuw_P', hint: "Bassin stable, genou vers la poitrine, épaules à l'aplomb des mains." },
-                    { id: 'ex3', name: 'Fentes', unit: 'rep', step: 1, img: '1ZGU4KP4flUX84z-Kj_VWM1PK2sALtXIz', hint: "Le genou arrière touche (ou frôle) le sol, le buste reste bien droit." }
+                    { id: 'ex3', name: 'Fentes', unit: 'rep', step: 1, img: '1ZGU4KP4flUX84z-Kj_VWM1PK2sALtXIz', hint: "Le genou arrière touche le sol, le buste reste bien droit." }
                 ]
             },
             'S3': {
@@ -451,7 +454,7 @@
                 exos: [
                     { id: 'ex1', name: 'Gainage (Planche)', unit: 's', step: 5, img: '1lMLRyOId7k2vckJ8j17Lsl1yKAgxOwgp', hint: "Abdos contractés, respiration fluide, aucun creux lombaire." },
                     { id: 'ex2', name: 'Superman', unit: 'rep', step: 1, img: '1G0gaN_YaVkTBbnPd08qO_xKk2MlBPfYY', hint: "Décoller simultanément cuisses et poitrine du sol, sans à-coups." },
-                    { id: 'ex3', name: 'Crunch', unit: 'rep', step: 1, img: '1L0csZY9C-8xFBgTTLsrzW0xafH5XDaN7', hint: "Épaules décollées, regard vers le haut, ne pas tirer sur la nuque avec les mains." }
+                    { id: 'ex3', name: 'Crunch', unit: 'rep', step: 1, img: '1L0csZY9C-8xFBgTTLsrzW0xafH5XDaN7', hint: "Épaules décollées, regard vers le haut, ne pas tirer sur la nuque." }
                 ]
             }
         };
@@ -459,19 +462,58 @@
         let currentClass = "", currentJudge = "", currentAthlete = "", extractedStudents = [];
         let currentSessionId = "S1", currentPayload = null, progressChartInstance = null;
         let viewBeforeReferentiel = "", profMatrixData = {}, currentRoster = [];
-        let currentTeacherEvaluations = {}, currentProfClassId = "";
 
-        window.addEventListener('error', (event) => {
-            console.error('Erreur JavaScript :', event.message, event.filename, event.lineno);
-        });
-        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        // --- GESTION DE L'INSTALLATION PWA ---
+        let deferredPrompt;
         
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('btn-install').style.display = 'block';
+        });
+
+        // Détection Safari iOS / Mode autonome
+        const isIos = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(userAgent);
+        };
+        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (isIos() && !isInStandaloneMode()) {
+                document.getElementById('btn-install').style.display = 'block';
+                document.getElementById('install-instructions').innerHTML = `
+                    🍎 <strong>Sur iPhone / iPad :</strong><br><br>
+                    1. Touchez l'icône <strong>Partager</strong> en bas de l'écran.<br>
+                    2. Défilez vers le bas et touchez <strong>"Sur l'écran d'accueil"</strong>.
+                `;
+            } else if (!isIos() && !window.matchMedia('(display-mode: standalone)').matches) {
+                 document.getElementById('install-instructions').innerHTML = `
+                    🤖 <strong>Sur Android :</strong><br><br>
+                    1. Appuyez sur les <strong>3 petits points</strong> de votre navigateur.<br>
+                    2. Touchez <strong>"Ajouter à l'écran d'accueil"</strong>.
+                `;
+            }
+        });
+
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') document.getElementById('btn-install').style.display = 'none';
+                deferredPrompt = null;
+            } else {
+                document.getElementById('install-modal').style.display = 'flex';
+            }
+        }
+
+        // --- GESTION DE L'IMAGE ZOOMABLE (LIGHTBOX) ---
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
         function openImage(imgUrl) {
             document.getElementById('lightbox-img').src = imgUrl;
             document.getElementById('image-lightbox').style.display = 'flex';
             viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes");
         }
-        
         function closeImage(event) {
             if(event) event.stopPropagation();
             document.getElementById('image-lightbox').style.display = 'none';
@@ -479,17 +521,14 @@
             viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no");
         }
 
+        // --- UTILITAIRES ---
         function navTo(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            const destination = document.getElementById(viewId);
-            if (!destination) { console.error('Vue introuvable :', viewId); return; }
-            destination.classList.add('active');
-            document.body.classList.toggle('prof-mode', viewId === 'view-prof-dashboard');
+            document.getElementById(viewId).classList.add('active');
             if(viewId === 'view-student-setup') fetchClasses();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
-        // Gère l'affichage du référentiel (Soit Global depuis l'accueil, soit Ciblé depuis un contrat)
         function navToReferentiel(fromView, showAll = false) {
             viewBeforeReferentiel = fromView;
             let html = "";
@@ -498,7 +537,7 @@
                 document.getElementById('ref-title').textContent = `📖 Référentiel Global`;
                 for (const [sid, cfg] of Object.entries(SESSIONS)) {
                     html += `<h3 style="color:var(--primary); text-align:center; margin-top:1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">--- ${cfg.title} ---</h3>`;
-                    cfg.exos.forEach((ex, idx) => {
+                    cfg.exos.forEach((ex) => {
                         let imgUrl = `https://drive.google.com/thumbnail?id=${ex.img}&sz=w1600`;
                         html += `
                         <div class="card" style="margin-bottom:1rem;">
@@ -574,7 +613,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                const lines = text.split(/\r\n|\n|\r/); // Correction bug JavaScript ici
+                const lines = text.split(/\r\n|\n|\r/);
                 extractedStudents = [];
                 for(let i = 0; i < lines.length; i++) {
                     if (lines[i].trim() === "") continue; 
@@ -601,14 +640,13 @@
         }
 
         async function saveClassToFirebase() {
-            if (!requireFirebase()) return;
             const className = document.getElementById('class-name-input').value.trim();
             if(!className) return showAlert('⚠️ Entrez le nom de la classe.');
             if(extractedStudents.length === 0) return showAlert('⚠️ Aucun élève à importer.');
             const btn = document.getElementById('btn-save-class');
             btn.textContent = "⏳ Sauvegarde...";
             try {
-                await db.collection('classes').doc(className).set({ students: extractedStudents }, { merge: true });
+                await db.collection('classes').doc(className).set({ students: extractedStudents });
                 showAlert(`✅ Classe ${className} enregistrée !`);
                 document.getElementById('class-name-input').value = '';
                 document.getElementById('csv-file').value = '';
@@ -621,27 +659,24 @@
         }
 
         async function fetchClasses() {
-            if (!requireFirebase()) return;
             const select = document.getElementById('student-class');
             select.innerHTML = '<option value="">-- Choisir la classe --</option>';
             try {
                 const snapshot = await db.collection('classes').get();
                 snapshot.forEach(doc => { select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`; });
-            } catch (e) { console.error(e); showAlert('❌ Impossible de charger les classes.'); }
+            } catch (e) {}
         }
 
         async function fetchClassesForFilter() {
-            if (!requireFirebase()) return;
             const select = document.getElementById('filter-class');
             select.innerHTML = '<option value="">Sélectionner une classe</option>';
             try {
                 const snapshot = await db.collection('classes').get();
                 snapshot.forEach(doc => { select.innerHTML += `<option value="${doc.id}">${doc.id}</option>`; });
-            } catch(e) { console.error(e); showAlert('❌ Impossible de charger les classes.'); }
+            } catch(e) {}
         }
 
         async function loadStudentsForClass() {
-            if (!requireFirebase()) return;
             const className = document.getElementById('student-class').value;
             const selectJ = document.getElementById('student-judge');
             const selectA = document.getElementById('student-athlete');
@@ -833,7 +868,6 @@
         }
 
         async function submitSession() {
-            if (!requireFirebase()) return;
             if(!currentPayload) return;
             const btn = document.getElementById('btn-final-submit');
             btn.textContent = "⏳ Enregistrement..."; btn.disabled = true;
@@ -856,7 +890,6 @@
         }
 
         async function loadHistorique() {
-            if (!requireFirebase()) return;
             if(!currentAthlete || !currentClass) return showAlert("Sélectionnez un élève.");
             navTo('view-student-historique');
             document.getElementById('hist-athlete-name').textContent = currentAthlete;
@@ -942,19 +975,15 @@
         }
 
         async function loadClassMatrix() {
-            if (!requireFirebase()) return;
             const classId = document.getElementById('filter-class').value;
             const tbody = document.getElementById('matrix-body');
-            if(!classId) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);">Sélectionnez une classe.</td></tr>'; resetTeacherKpis(); return; }
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">⏳ Construction du tableau...</td></tr>';
+            if(!classId) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted);">Sélectionnez une classe.</td></tr>'; return; }
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">⏳ Construction du tableau...</td></tr>';
             
             try {
                 const classDoc = await db.collection('classes').doc(classId).get();
-                if(!classDoc.exists) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--danger);">Classe introuvable.</td></tr>'; return; }
+                if(!classDoc.exists) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--danger);">Classe introuvable.</td></tr>'; return; }
                 currentRoster = classDoc.data().students || [];
-                currentProfClassId = classId;
-                currentTeacherEvaluations = classDoc.data().evaluations || {};
-                document.getElementById('student-search').value = '';
                 
                 const snapshot = await db.collection('resultats').where('classe', '==', classId).get();
                 let profRawData = []; snapshot.forEach(doc => profRawData.push(doc.data()));
@@ -989,68 +1018,10 @@
                     let globalHtml = globalMoy !== null ? `<span class="badge ${getBadgeClass(globalMoy)}" style="font-size:1rem;">${globalMoy}%</span>` : `-`;
                     let safeName = encodeURIComponent(athlete);
 
-                    const evKey = encodeURIComponent(athlete);
-                    const teacherEval = currentTeacherEvaluations[evKey] || {};
-                    const gradeCell = (sid) => `<div class="session-grade"><input class="teacher-grade" type="number" min="0" max="5" step="0.5" value="${teacherEval['grade'+sid] ?? ''}" placeholder="/5" aria-label="Note sur 5 ${sid} pour ${athlete}" onchange="saveTeacherEvaluation('${safeName}','grade${sid}',this.value,this)"><span class="save-state"></span></div>`;
-                    const commentValue = (teacherEval.comment || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-                    tbody.innerHTML += `<tr data-student="${athlete.toLowerCase().replace(/"/g,'&quot;')}">
-                        <td>${athlete}</td><td>${s1H}${gradeCell('S1')}</td><td>${s2H}${gradeCell('S2')}</td><td>${s3H}${gradeCell('S3')}</td><td>${globalHtml}</td>
-                        <td><input class="teacher-comment" type="text" maxlength="240" value="${commentValue}" placeholder="Appréciation…" aria-label="Appréciation pour ${athlete}" onchange="saveTeacherEvaluation('${safeName}','comment',this.value,this)"><span class="save-state"></span></td>
-                        <td><button class="btn-detail" onclick="showStudentDetails('${safeName}')" aria-label="Détails de ${athlete}">Détails</button></td></tr>`;
+                    tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}</td><td>${s2H}</td><td>${s3H}</td><td>${globalHtml}</td><td><button class="btn-secondary" style="margin:0; padding:4px 8px;" onclick="showStudentDetails('${safeName}')">🔍</button></td></tr>`;
                 });
-                profMatrixData = studentData;
-                updateTeacherKpis(studentData);
-                filterTeacherRows();
-            } catch (e) { console.error(e); tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger);">Erreur réseau ou accès Firebase.</td></tr>`; }
-        }
-
-        function resetTeacherKpis() {
-            ['kpi-students','kpi-sessions','kpi-completion','kpi-average'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='—'; });
-        }
-
-        function updateTeacherKpis(data) {
-            const names = Object.keys(data || {});
-            let sessions = 0, scores = [], filled = 0, gradeScores = [];
-            names.forEach(name => {
-                ['S1','S2','S3'].forEach(sid => { if(data[name][sid]) { sessions++; scores.push(data[name][sid].moy); } });
-                const ev = currentTeacherEvaluations[encodeURIComponent(name)] || {};
-                ['gradeS1','gradeS2','gradeS3'].forEach(field => {
-                    if(ev[field] !== undefined && ev[field] !== '') { filled++; if(Number.isFinite(Number(ev[field]))) gradeScores.push(Number(ev[field])); }
-                });
-            });
-            document.getElementById('kpi-students').textContent = names.length;
-            document.getElementById('kpi-sessions').textContent = sessions;
-            document.getElementById('kpi-completion').textContent = `${filled}/${names.length * 3}`;
-            document.getElementById('kpi-average').textContent = gradeScores.length ? `${(gradeScores.reduce((a,b)=>a+b,0)/gradeScores.length).toFixed(1)}/5` : '—';
-        }
-
-        function filterTeacherRows() {
-            const q = (document.getElementById('student-search')?.value || '').trim().toLocaleLowerCase('fr');
-            document.querySelectorAll('#matrix-body tr[data-student]').forEach(row => {
-                row.style.display = row.dataset.student.includes(q) ? '' : 'none';
-            });
-        }
-
-        async function saveTeacherEvaluation(encodedName, field, value, input) {
-            if (!requireFirebase()) return;
-            const student = decodeURIComponent(encodedName);
-            if (field.startsWith('grade') && value !== '' && (!Number.isFinite(Number(value)) || Number(value) < 0 || Number(value) > 5)) {
-                showAlert('⚠️ La note doit être comprise entre 0 et 5.'); input.focus(); return;
-            }
-            const key = encodeURIComponent(student);
-            if (!currentTeacherEvaluations[key]) currentTeacherEvaluations[key] = {};
-            currentTeacherEvaluations[key][field] = field.startsWith('grade') ? (value === '' ? '' : Number(value)) : value.trim();
-            const status = input.parentElement.querySelector('.save-state');
-            if(status) status.textContent = 'Enregistrement…';
-            try {
-                await db.collection('classes').doc(currentProfClassId).set({ evaluations: currentTeacherEvaluations }, { merge: true });
-                if(status) status.textContent = '✓ Enregistré';
-                if(field.startsWith('grade')) updateTeacherKpis(profMatrixData);
-            } catch(error) {
-                console.error('Erreur sauvegarde note/appréciation', error);
-                if(status) status.textContent = 'Échec — réessayer';
-                showAlert('❌ Impossible d’enregistrer cette évaluation.');
-            }
+                profMatrixData = studentData; 
+            } catch (e) { tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);">Erreur réseau.</td></tr>`; }
         }
 
         function showStudentDetails(encodedName) {
@@ -1112,11 +1083,8 @@
                 if(s1) moys.push(s1.moy); if(s2) moys.push(s2.moy); if(s3) moys.push(s3.moy);
                 let globalMoy = moys.length > 0 ? Math.round(moys.reduce((a,b)=>a+b,0)/moys.length) : null;
                 let gHtml = globalMoy !== null ? `<span class="pdf-b ${getPdfBadgeClass(globalMoy)}">${globalMoy}%</span>` : `-`;
-                const teacherEval = currentTeacherEvaluations[encodeURIComponent(athlete)] || {};
-                const g1 = teacherEval.gradeS1 !== undefined && teacherEval.gradeS1 !== '' ? `${teacherEval.gradeS1}/5` : '—';
-                const g2 = teacherEval.gradeS2 !== undefined && teacherEval.gradeS2 !== '' ? `${teacherEval.gradeS2}/5` : '—';
-                const g3 = teacherEval.gradeS3 !== undefined && teacherEval.gradeS3 !== '' ? `${teacherEval.gradeS3}/5` : '—';
-                tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}<br><strong>${g1}</strong></td><td>${s2H}<br><strong>${g2}</strong></td><td>${s3H}<br><strong>${g3}</strong></td><td>${gHtml}</td></tr>`;
+
+                tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}</td><td>${s2H}</td><td>${s3H}</td><td>${gHtml}</td></tr>`;
             });
 
             const element = document.getElementById('pdf-container');
