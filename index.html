@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cross Training - Évaluation Digitale</title>
     
+    <!-- PWA & iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CT EPS">
     <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1osaB_Lq4BvN-6FuxxFlFrKgGOmXuW01t&sz=w192">
     
+    <!-- 1. Lien vers le fichier Manifest (Pour l'installation) -->
     <link rel="manifest" href="manifest.json">
+    
+    <!-- 2. Enregistrement du Service Worker (Pour le hors-ligne et l'installation) -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
@@ -24,10 +28,17 @@
       }
     </script>
 
+    <!-- Police moderne -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- html2pdf for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -158,9 +169,9 @@
     <!-- MODAL INSTALLATION PWA -->
     <div class="modal-overlay" id="install-modal">
         <div class="modal-content" style="text-align: center;">
-            <h2 style="color:var(--primary); margin-bottom: 1rem;">Installer l'App 📲</h2>
+            <h2 style="color:var(--primary); margin-bottom: 1rem;">Garder l'Application 📲</h2>
             <p id="install-instructions" style="line-height:1.6; color:var(--text-main);">
-                Pour un accès rapide hors-ligne, ajoutez cette application sur votre écran d'accueil.
+                Pour ne pas perdre la page pendant la séance, ajoutez-la à votre écran d'accueil.
             </p>
             <button class="btn-main" style="margin-top:1.5rem;" onclick="document.getElementById('install-modal').style.display='none'">Compris !</button>
         </div>
@@ -190,12 +201,8 @@
             <button class="btn-main prof" style="margin-top: 1rem;" onclick="navTo('view-prof-login')">⚙️ Espace Professeur</button>
 
             <!-- BOUTON INSTALLATION PWA -->
-            <button class="btn-main btn-install" id="btn-install" style="display: none; margin-top: 1.5rem;" onclick="installApp()">
+            <button class="btn-main btn-install" id="btn-install" style="margin-top: 1.5rem;" onclick="installApp()">
                 📲 Installer l'application sur ce téléphone
-            </button>
-
-            <button class="btn-secondary" style="margin-top: 1.5rem; font-size:0.8rem; border:none; text-decoration:underline;" onclick="testPWA()">
-                Diagnostic Installation Application
             </button>
         </div>
 
@@ -378,8 +385,19 @@
             <h2 style="text-align: center; color: var(--primary);">🏆 PROFIL ATHLÈTE</h2>
             <p style="text-align: center; color: white; font-size: 1.4rem; font-weight:900; margin-bottom: 0.5rem;" id="hist-athlete-name"></p>
             
+            <!-- BLOC PRINCIPAL STATISTIQUES -->
             <div id="hist-summary"></div>
             
+            <!-- RESTAURATION DU GRAPHIQUE -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3 style="margin-top:0; font-size:1rem; color:var(--text-muted); text-align:center;">Évolution de la réussite</h3>
+                <canvas id="progressChart" width="400" height="250"></canvas>
+            </div>
+            
+            <!-- RESTAURATION DE LA LISTE DE L'HISTORIQUE -->
+            <h3 style="color:var(--secondary); text-align:center; margin-top:2rem;">Historique détaillé</h3>
+            <div id="historique-list"></div>
+
             <button class="btn-main prof" style="margin-top:2rem;" onclick="navTo('view-student-menu')">Retour au menu</button>
         </div>
 
@@ -446,55 +464,41 @@
         let currentSessionId = "S1", currentPayload = null, progressChartInstance = null;
         let viewBeforeReferentiel = "", profMatrixData = {}, currentRoster = [];
 
-        // --- GESTION DE L'INSTALLATION PWA ---
+        // --- GESTION DE L'INSTALLATION PWA (TOUJOURS VISIBLE) ---
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('btn-install').style.display = 'block';
         });
 
         const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
         const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
+        // Au chargement, on adapte le texte du tutoriel selon le téléphone de l'élève
         window.addEventListener('DOMContentLoaded', () => {
-            if (isIos() && !isInStandaloneMode()) {
-                document.getElementById('btn-install').style.display = 'block';
-                document.getElementById('install-instructions').innerHTML = `🍎 <strong>Sur iPhone / iPad :</strong><br><br>1. Touchez l'icône <strong>Partager</strong> en bas de l'écran.<br>2. Défilez et touchez <strong>"Sur l'écran d'accueil"</strong>.`;
-            } else if (!isIos() && !window.matchMedia('(display-mode: standalone)').matches) {
-                 document.getElementById('install-instructions').innerHTML = `🤖 <strong>Sur Android :</strong><br><br>1. Appuyez sur les <strong>3 petits points</strong>.<br>2. Touchez <strong>"Ajouter à l'écran d'accueil"</strong>.`;
+            if (isIos()) {
+                document.getElementById('install-instructions').innerHTML = `🍎 <strong>Sur iPhone / iPad :</strong><br><br>1. Touchez l'icône <strong>Partager</strong> (le carré avec la flèche vers le haut) en bas de l'écran.<br><br>2. Défilez vers le bas et touchez <strong>"Sur l'écran d'accueil"</strong>.`;
+            } else {
+                document.getElementById('install-instructions').innerHTML = `🤖 <strong>Sur Android :</strong><br><br>1. Appuyez sur les <strong>3 petits points</strong> en haut à droite de votre navigateur.<br><br>2. Touchez <strong>"Ajouter à l'écran d'accueil"</strong> ou <strong>"Installer l'application"</strong>.`;
+            }
+            
+            // Si l'app est déjà installée et ouverte en plein écran, on cache le bouton pour faire propre
+            if (isInStandaloneMode() || window.matchMedia('(display-mode: standalone)').matches) {
+                document.getElementById('btn-install').style.display = 'none';
             }
         });
 
         async function installApp() {
+            // Si Android autorise l'installation automatique (tout est vert et l'algo le permet)
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') document.getElementById('btn-install').style.display = 'none';
                 deferredPrompt = null;
             } else {
+                // Si iPhone OU si Android bloque l'automatique, on affiche le tutoriel manuel !
                 document.getElementById('install-modal').style.display = 'flex';
             }
-        }
-
-        async function testPWA() {
-            let msg = "";
-            try {
-                let r1 = await fetch('manifest.json');
-                if(r1.ok) msg += "✅ manifest.json détecté\n"; else msg += "❌ manifest.json introuvable (Erreur 404)\n";
-            } catch(e) { msg += "❌ Impossible de lire manifest.json\n"; }
-            
-            try {
-                let r2 = await fetch('sw.js');
-                if(r2.ok) msg += "✅ sw.js détecté\n"; else msg += "❌ sw.js introuvable (Erreur 404)\n";
-            } catch(e) { msg += "❌ Impossible de lire sw.js\n"; }
-            
-            if(window.location.protocol === 'https:' || window.location.hostname === 'localhost') {
-                msg += "✅ Connexion sécurisée HTTPS active.\n";
-            } else {
-                msg += "❌ Connexion non sécurisée. Le HTTPS est OBLIGATOIRE pour installer l'application.\n";
-            }
-            alert("RÉSULTAT DU DIAGNOSTIC :\n\n" + msg + "\nSi un ❌ apparaît, l'installation bloquera sur Android.");
         }
 
         // --- GESTION DE L'IMAGE ZOOMABLE (LIGHTBOX) ---
@@ -796,7 +800,6 @@
             navTo('view-form-eval');
         }
 
-        // --- BILAN SIMPLIFIÉ (POST-WOD) ---
         function confirmSubmission() {
             const cfg = SESSIONS[currentSessionId];
             currentPayload = {
@@ -895,14 +898,13 @@
                             sum1+=v1; err1+=e1; sum2+=v2; err2+=e2; sum3+=v3; err3+=e3;
                         });
                         
-                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target : d.contrat.squat.target;
-                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target : d.contrat.plank.target;
-                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target : d.contrat.pushup.target;
+                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target : (d.contrat.squat ? d.contrat.squat.target : 0);
+                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target : (d.contrat.plank ? d.contrat.plank.target : 0);
+                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target : (d.contrat.pushup ? d.contrat.pushup.target : 0);
                         
                         let moy = Math.round((calcPercent(sum1,t1*5) + calcPercent(sum2,t2*5) + calcPercent(sum3,t3*5))/3);
                         chartData.push(moy); globalScores.push(moy);
 
-                        // Accumulation des statistiques par exercice pour le Bilan Détaillé
                         let cfg = SESSIONS[sid] || SESSIONS["S1"];
                         if(!exoStats[cfg.exos[0].name]) exoStats[cfg.exos[0].name] = {fait:0, err:0, obj:0, unit:cfg.exos[0].unit};
                         if(!exoStats[cfg.exos[1].name]) exoStats[cfg.exos[1].name] = {fait:0, err:0, obj:0, unit:cfg.exos[1].unit};
@@ -922,7 +924,7 @@
                     exList.push({name: key, p: p, fait: st.fait, err: st.err, unit: st.unit});
                     totalFaitAll += st.fait; totalErrAll += st.err;
                 }
-                exList.sort((a,b) => b.p - a.p); // Trie par meilleur pourcentage
+                exList.sort((a,b) => b.p - a.p);
                 let pFort = exList.length > 0 ? exList[0] : null;
                 let pFaible = exList.length > 0 ? exList[exList.length-1] : null;
                 let techScore = (totalFaitAll+totalErrAll) > 0 ? Math.round((totalFaitAll/(totalFaitAll+totalErrAll))*100) : 0;
@@ -930,7 +932,6 @@
                 let totalAvg = globalScores.length > 0 ? Math.round(globalScores.reduce((a,b)=>a+b,0)/globalScores.length) : 0;
                 let profil = getAthleteTitle(totalAvg);
 
-                // AFFICHAGE DES NOUVELLES STATISTIQUES
                 summaryDiv.innerHTML = `
                     <div style="font-size:1.1rem; color:var(--text-muted); margin-bottom:5px;">NIVEAU ACTUEL</div>
                     <div style="font-size:1.5rem; font-weight:900; color:${profil.color}; margin-bottom:15px;">${profil.title}</div>
@@ -971,7 +972,6 @@
                     </div>
                 `;
 
-                // --- Graphique d'évolution ---
                 const ctx = document.getElementById('progressChart').getContext('2d');
                 if(progressChartInstance) progressChartInstance.destroy();
                 progressChartInstance = new Chart(ctx, {
@@ -979,16 +979,15 @@
                     options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min:0, max:100, ticks: { color: '#94a3b8'} }, x: { ticks: { color: '#94a3b8'} } } }
                 });
 
-                // --- Historique détaillé ---
                 listDiv.innerHTML = '';
                 histData.forEach(d => {
                     const dateStr = d.timestamp.toDate().toLocaleDateString('fr-FR');
                     if(d.tours && d.tours.length > 0) {
                         let sum1 = 0, sum2 = 0, sum3 = 0;
                         d.tours.forEach(t => { sum1 += (t.ex1?.fait || t.squat?.fait || 0); sum2 += (t.ex2?.fait || t.plank?.fait || 0); sum3 += (t.ex3?.fait || t.pushup?.fait || 0); });
-                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target * 5 : d.contrat.squat.target * 5;
-                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target * 5 : d.contrat.plank.target * 5;
-                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target * 5 : d.contrat.pushup.target * 5;
+                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target * 5 : (d.contrat.squat ? d.contrat.squat.target * 5 : 0);
+                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target * 5 : (d.contrat.plank ? d.contrat.plank.target * 5 : 0);
+                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target * 5 : (d.contrat.pushup ? d.contrat.pushup.target * 5 : 0);
                         let p1 = calcPercent(sum1, t1); let p2 = calcPercent(sum2, t2); let p3 = calcPercent(sum3, t3);
                         let moy = Math.round((p1 + p2 + p3) / 3);
 
@@ -1035,9 +1034,9 @@
                         let sid = d.seance === "S1_5_TOURS" ? "S1" : d.seance;
                         let sum1=0, sum2=0, sum3=0;
                         d.tours.forEach(t => { sum1 += (t.ex1?.fait || t.squat?.fait || 0); sum2 += (t.ex2?.fait || t.plank?.fait || 0); sum3 += (t.ex3?.fait || t.pushup?.fait || 0); });
-                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target*5 : d.contrat.squat.target*5;
-                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target*5 : d.contrat.plank.target*5;
-                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target*5 : d.contrat.pushup.target*5;
+                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target*5 : (d.contrat.squat ? d.contrat.squat.target*5 : 0);
+                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target*5 : (d.contrat.plank ? d.contrat.plank.target*5 : 0);
+                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target*5 : (d.contrat.pushup ? d.contrat.pushup.target*5 : 0);
                         let moy = Math.round((calcPercent(sum1,t1)+calcPercent(sum2,t2)+calcPercent(sum3,t3))/3);
                         if(studentData[d.athlete][sid] !== undefined) studentData[d.athlete][sid] = { moy: moy, raw: d };
                     }
@@ -1086,9 +1085,9 @@
                             sum2 += (t.ex2?.fait || t.plank?.fait || 0); sum2E += (t.ex2?.norep || t.plank?.norep || 0);
                             sum3 += (t.ex3?.fait || t.pushup?.fait || 0); sum3E += (t.ex3?.norep || t.pushup?.norep || 0);
                         });
-                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target*5 : d.contrat.squat.target*5;
-                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target*5 : d.contrat.plank.target*5;
-                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target*5 : d.contrat.pushup.target*5;
+                        let t1 = d.contrat.ex1 ? d.contrat.ex1.target*5 : (d.contrat.squat ? d.contrat.squat.target*5 : 0);
+                        let t2 = d.contrat.ex2 ? d.contrat.ex2.target*5 : (d.contrat.plank ? d.contrat.plank.target*5 : 0);
+                        let t3 = d.contrat.ex3 ? d.contrat.ex3.target*5 : (d.contrat.pushup ? d.contrat.pushup.target*5 : 0);
 
                         html += `<tr><td style="text-align:left; padding:2px;">${cfg.exos[0].name.substring(0,8)}</td><td>${t1}</td><td><span class="color-vert">${sum1}</span></td><td><span class="color-rouge">${sum1E}</span></td></tr>`;
                         html += `<tr><td style="text-align:left; padding:2px;">${cfg.exos[1].name.substring(0,8)}</td><td>${t2}</td><td><span class="color-vert">${sum2}</span></td><td><span class="color-rouge">${sum2E}</span></td></tr>`;
