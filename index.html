@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cross Training - Évaluation Digitale</title>
     
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CT EPS">
     <meta name="theme-color" content="#0f172a">
-    <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1osaB_Lq4BvN-6FuxxFlFrKgGOmXuW01t&sz=w192">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     
     <link rel="manifest" href="manifest.json">
     <script>
@@ -159,11 +162,11 @@
     <!-- MODAL INSTALLATION PWA -->
     <div class="modal-overlay" id="install-modal">
         <div class="modal-content" style="text-align: center;">
-            <h2 style="color:var(--primary); margin-bottom: 1rem;">Garder l'Application 📲</h2>
-            <p id="install-instructions" style="line-height:1.6; color:var(--text-main);">
-                Pour ne pas perdre la page pendant la séance, ajoutez-la à votre écran d'accueil.
-            </p>
-            <button class="btn-main" style="margin-top:1.5rem;" onclick="document.getElementById('install-modal').style.display='none'">Compris !</button>
+            <img src="icon.png" alt="CT EPS" style="width: 72px; height: 72px; border-radius: 16px; margin-bottom: 0.8rem; box-shadow: 0 4px 15px rgba(249,115,22,0.4);">
+            <h2 style="color:var(--primary); margin-bottom: 0.8rem;">Installer l'Appli 📲</h2>
+            <div id="install-instructions" style="line-height:1.6; color:var(--text-main); text-align:left; font-size:0.95rem;"></div>
+            <button class="btn-secondary" style="margin-top: 1.2rem; border-color: var(--secondary); color: var(--secondary);" onclick="copyAppUrl()">📋 Copier le lien de l'appli</button>
+            <button class="btn-main" style="margin-top: 0.8rem;" onclick="document.getElementById('install-modal').style.display='none'">Compris !</button>
         </div>
     </div>
 
@@ -300,6 +303,7 @@
                 </button>
                 
                 <button class="btn-main prof" style="margin-top:2rem;" onclick="loadHistorique()">🏆 Profil & Stats de l'athlète</button>
+                <button class="btn-main" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); margin-top: 1rem;" onclick="swapRoles()">🔄 Inverser les rôles (Juge ↔ Athlète)</button>
                 <button class="btn-secondary" onclick="navTo('view-student-setup')">Changer d'élèves</button>
             </div>
         </div>
@@ -453,7 +457,8 @@
             <h3 style="color:var(--secondary); text-align:center; margin-top:2rem;">Historique détaillé</h3>
             <div id="historique-list"></div>
 
-            <button class="btn-main prof" style="margin-top:2rem;" onclick="navTo('view-student-menu')">Retour au menu</button>
+            <button class="btn-main" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); margin-top: 2rem;" onclick="swapRoles()">🔄 Inverser les rôles (Juge ↔ Athlète)</button>
+            <button class="btn-main prof" onclick="navTo('view-student-menu')">Retour au menu</button>
         </div>
 
     </div>
@@ -520,24 +525,68 @@
         let currentSessionId = "S1", currentPayload = null, progressChartInstance = null;
         let viewBeforeReferentiel = "", profMatrixData = {}, currentRoster = [];
 
-        // --- GESTION DE L'INSTALLATION PWA ---
+        // --- GESTION DE L'INSTALLATION PWA (iOS & ANDROID) ---
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            const btn = document.getElementById('btn-install');
+            if(btn) btn.innerHTML = '⚡ Installer l\'application maintenant';
         });
 
-        const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+        const isIos = () => {
+            const ua = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        };
+        const isSafari = () => {
+            const ua = window.navigator.userAgent;
+            return /Safari/i.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS|FBAN|FBAV|Instagram|GSA/i.test(ua);
+        };
+        const isInStandaloneMode = () => ('standalone' in window.navigator && window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
+
+        function copyAppUrl() {
+            const url = window.location.href.split('?')[0];
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => showAlert('✅ Lien copié ! Colle-le dans Safari.'));
+            } else {
+                prompt('Copie ce lien et ouvre-le dans Safari :', url);
+            }
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (isIos()) {
-                document.getElementById('install-instructions').innerHTML = `🍎 <strong>Sur iPhone / iPad :</strong><br><br>1. Touchez l'icône <strong>Partager</strong> (le carré avec la flèche vers le haut) en bas de l'écran.<br><br>2. Défilez vers le bas et touchez <strong>"Sur l'écran d'accueil"</strong>.`;
-            } else {
-                document.getElementById('install-instructions').innerHTML = `🤖 <strong>Sur Android :</strong><br><br>1. Appuyez sur les <strong>3 petits points</strong> en haut à droite de votre navigateur.<br><br>2. Touchez <strong>"Ajouter à l'écran d'accueil"</strong> ou <strong>"Installer l'application"</strong>.`;
+            const btn = document.getElementById('btn-install');
+            if (isInStandaloneMode()) {
+                if (btn) btn.style.display = 'none';
+                return;
             }
-            if (isInStandaloneMode() || window.matchMedia('(display-mode: standalone)').matches) {
-                document.getElementById('btn-install').style.display = 'none';
+            if (btn) btn.style.display = 'block';
+
+            const instr = document.getElementById('install-instructions');
+            if (isIos()) {
+                if (!isSafari()) {
+                    instr.innerHTML = `
+                        <div style="background:rgba(239,68,68,0.15); border:1px solid var(--danger); padding:10px; border-radius:10px; margin-bottom:12px;">
+                            ⚠️ <strong>Attention :</strong> Tu n'es pas dans <strong>Safari</strong> ! L'option d'installation est bloquée dans ce navigateur.
+                        </div>
+                        <strong>Comment faire sur iPhone / iPad :</strong><br><br>
+                        1. Touche la boussole <strong>Safari</strong> en bas à droite (ou copie le lien ci-dessous).<br>
+                        2. Ouvre le lien dans <strong>Safari</strong>.<br>
+                        3. Touche <strong>Partager</strong> (carré avec flèche ⬆️) puis <strong>"Sur l'écran d'accueil"</strong> ➕.
+                    `;
+                } else {
+                    instr.innerHTML = `
+                        🍎 <strong>Sur iPhone / iPad (Safari) :</strong><br><br>
+                        1. Touche le bouton <strong>Partager</strong> (le carré avec la flèche vers le haut ⬆️) tout en bas de l'écran.<br><br>
+                        2. Fais défiler le menu vers le bas et touche <strong>"Sur l'écran d'accueil"</strong> ➕.<br><br>
+                        3. Touche <strong>"Ajouter"</strong> en haut à droite.
+                    `;
+                }
+            } else {
+                instr.innerHTML = `
+                    🤖 <strong>Sur Android (Chrome) :</strong><br><br>
+                    1. Appuie sur les <strong>3 petits points (⋮)</strong> en haut à droite de ton écran.<br><br>
+                    2. Touche <strong>"Ajouter à l'écran d'accueil"</strong> ou <strong>"Installer l'application"</strong>.
+                `;
             }
         });
 
@@ -566,11 +615,28 @@
             viewportMeta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no");
         }
 
+        function scrollToTop() {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
         function navTo(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             if(viewId === 'view-student-setup') fetchClasses();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollToTop();
+        }
+
+        function swapRoles() {
+            if(!currentJudge || !currentAthlete) return showAlert("⚠️ Sélectionnez d'abord les élèves.");
+            let temp = currentJudge;
+            currentJudge = currentAthlete;
+            currentAthlete = temp;
+            document.getElementById('display-judge').textContent = currentJudge;
+            document.getElementById('display-athlete').textContent = currentAthlete;
+            showAlert(`🔄 Rôles inversés ! Athlète : ${currentAthlete}`);
+            navTo('view-student-menu');
         }
         
         function navToReferentiel(fromView, showAll = false) {
@@ -924,7 +990,7 @@
                 await db.collection('resultats').add(currentPayload);
                 showAlert("✅ Résultats AMRAP enregistrés !");
                 currentPayload = null;
-                loadHistorique();
+                loadHistorique(true);
             } catch(e) { showAlert("❌ Erreur de réseau."); } 
             finally { btn.textContent = "📤 ENREGISTRER MA SÉANCE"; btn.disabled = false; }
         }
@@ -979,7 +1045,7 @@
                 currentPayload = null;
                 
                 // Redirection automatique vers le profil pour voir les stats
-                loadHistorique();
+                loadHistorique(true);
             } catch(e) { showAlert("❌ Erreur de réseau."); } 
             finally { btn.textContent = "📤 ENREGISTRER MA SÉANCE"; btn.disabled = false; }
         }
@@ -1039,7 +1105,7 @@
             return { title: "🌱 L'ATHLÈTE", desc: "Bilan global très équilibré. Continue de t'entraîner pour viser un profil d'excellence !", color: "var(--text-main)" };
         }
 
-        async function loadHistorique() {
+        async function loadHistorique(justSaved = false) {
             if(!currentAthlete || !currentClass) return showAlert("Sélectionnez un élève.");
             navTo('view-student-historique');
             document.getElementById('hist-athlete-name').textContent = currentAthlete;
@@ -1121,8 +1187,16 @@
                 let profil = determineProfile(histData);
 
                 // AFFICHAGE DES NOUVELLES STATISTIQUES ET DU PROFIL
+                let savedBanner = justSaved ? `
+                    <div style="background: rgba(16, 185, 129, 0.2); border: 2px solid var(--success); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; text-align: center;">
+                        <div style="font-weight: 800; color: var(--success); font-size: 1rem;">✅ SÉANCE ENREGISTRÉE !</div>
+                        <div style="font-size: 0.85rem; color: var(--text-main); margin-top: 4px;">Découvre ton analyse actualisée ci-dessous 👇</div>
+                    </div>
+                ` : '';
+
                 summaryDiv.innerHTML = `
-                    <div class="card" style="text-align:center; padding: 2rem 1rem;">
+                    ${savedBanner}
+                    <div class="card" style="text-align:center; padding: 2rem 1rem; ${justSaved ? 'border: 2px solid ' + profil.color + ';' : ''}">
                         <div style="font-size:1.1rem; color:var(--text-muted); margin-bottom:5px;">TON PROFIL D'ATHLÈTE</div>
                         <div style="font-size:1.8rem; font-weight:900; color:${profil.color}; margin-bottom:5px;">${profil.title}</div>
                         <p style="font-size:0.9rem; color:var(--text-main); margin:0 0 1.5rem 0; line-height:1.4;"><em>"${profil.desc}"</em></p>
@@ -1132,6 +1206,7 @@
                             <div><div style="font-size:2.5rem; font-weight:800; color:var(--secondary);">${histData.length}</div><div style="font-size:0.8rem; color:var(--text-muted);">Séances Validées</div></div>
                         </div>
                     </div>
+                    ${justSaved ? `<button class="btn-main" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); margin-bottom: 1.5rem;" onclick="swapRoles()">🔄 Inverser les rôles (Au tour de ${currentJudge})</button>` : ''}
 
                     <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; margin-bottom:1.5rem; text-align:left;">
                         <h3 style="margin-top:0; font-size:1.1rem;">🎯 Technique Globale</h3>
@@ -1215,6 +1290,7 @@
                             </div>`;
                     }
                 });
+                setTimeout(scrollToTop, 100);
             } catch (e) { listDiv.innerHTML = '<p style="color:var(--danger); text-align:center;">Erreur de chargement.</p>'; }
         }
 
