@@ -140,6 +140,16 @@
 
         .color-rouge { color: var(--danger); font-weight: bold; }
         .color-vert { color: var(--success); font-weight: bold; }
+
+        .btn-main.s5 { background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .btn-main.s6 { background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4); }
+        .btn-main.eval-btn { background: linear-gradient(135deg, #eab308, #ca8a04); color: #0f172a; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); }
+
+
+        .eval-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .score-pill { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 0.9rem; text-align: center; }
+        .score-pill-val { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .score-pill-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -244,12 +254,15 @@
                                 <th>S2 <br><span style="font-size:0.65rem; font-weight:normal;">(Jack/Cl/Fente)</span></th>
                                 <th>S3 <br><span style="font-size:0.65rem; font-weight:normal;">(Gainage/Sup/Crunch)</span></th>
                                 <th>S4 <br><span style="font-size:0.65rem; font-weight:normal;">(AMRAP)</span></th>
-                                <th>Moyenne</th>
+                                <th>S5 <br><span style="font-size:0.65rem; font-weight:normal;">(Death By)</span></th>
+                                <th>S6 <br><span style="font-size:0.65rem; font-weight:normal;">(Répétition)</span></th>
+                                <th>Note /20</th>
+                                <th>Moy. S1-S3</th>
                                 <th>Détails</th>
                             </tr>
                         </thead>
                         <tbody id="matrix-body">
-                            <tr><td colspan="7" style="color:var(--text-muted);">Sélectionnez une classe pour afficher les résultats.</td></tr>
+                            <tr><td colspan="10" style="color:var(--text-muted);">Sélectionnez une classe pour afficher les résultats.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -300,6 +313,15 @@
                 </button>
                 <button class="btn-main s4" onclick="startSession4()">
                     ⏱️ SÉANCE 4 (AMRAP 10')<br><span style="font-size:0.8rem; font-weight:normal;">Burpees / Squats / Crunchs / Jacks</span>
+                </button>
+                <button class="btn-main s5" onclick="startSession5()">
+                    💀 S5 : DEATH BY<br><span style="font-size:0.8rem; font-weight:normal;">Mort Subite + Team WOD 170 Reps</span>
+                </button>
+                <button class="btn-main s6" onclick="startSession6()">
+                    🎯 S6 : RÉPÉTITION GÉNÉRALE<br><span style="font-size:0.8rem; font-weight:normal;">Simulation E2MOM 10' + Team WOD 170</span>
+                </button>
+                <button class="btn-main eval-btn" onclick="startEvaluation()">
+                    📝 ÉVALUATION (/20)<br><span style="font-size:0.8rem; font-weight:normal;">Feuille de Match & Calculateur Officiel</span>
                 </button>
                 
                 <button class="btn-main prof" style="margin-top:2rem;" onclick="loadHistorique()">🏆 Profil & Stats de l'athlète</button>
@@ -423,6 +445,350 @@
             <button class="btn-secondary" onclick="navTo('view-student-menu')">⬅️ Annuler</button>
         </div>
 
+        <!-- VUE ELEVE S5 : DEATH BY + TEAM WOD 170 -->
+        <div id="view-s5" class="view">
+            <h2 style="text-align: center; color: var(--danger);">💀 S5 : DEATH BY & TEAM WOD</h2>
+
+            <!-- BLOC 1 : DEATH BY -->
+            <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.35);">
+                <h3 style="margin-top:0; color:var(--danger); text-align:center;">BLOC 1 : ÉPREUVE "DEATH BY" (MORT SUBITE)</h3>
+                <div style="background:rgba(0,0,0,0.25); padding:0.9rem; border-radius:10px; font-size:0.85rem; color:var(--text-main); margin-bottom:1rem; line-height:1.5;">
+                    <strong>📋 Règles :</strong> Chaque minute commence par <strong>2 Burpees obligatoires</strong>, puis on ajoute un nombre croissant de <strong>Squats ou Fentes</strong> :<br>
+                    • <strong>Min 1 :</strong> 2 Burpees + 1 rep<br>
+                    • <strong>Min 2 :</strong> 2 Burpees + 2 reps<br>
+                    • <strong>Min 3 :</strong> 2 Burpees + 3 reps...<br>
+                    <span style="color:var(--warning);">🛑 Le jeu s'arrête dès que l'athlète ne finit plus dans la minute.</span>
+                </div>
+
+                <!-- SAISIE JUGE BLOC 1 -->
+                <h4 style="margin:0 0 0.6rem 0; color:var(--secondary); text-align:center; font-size:0.95rem;">SAISIE DU JUGE (MORT SUBITE)</h4>
+                <table class="tour-table">
+                    <tr>
+                        <td>⏱️ Minutes validées</td>
+                        <td>
+                            <div class="ctrl-cell">
+                                <button class="btn-tiny minus" onclick="updateCount('s5-db-mins', -1)">-</button>
+                                <input type="number" class="val-tiny-input" id="s5-db-mins" value="0">
+                                <button class="btn-tiny plus-val" onclick="updateCount('s5-db-mins', 1)">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--danger);">❌ NO REP (Posture)</td>
+                        <td>
+                            <div class="ctrl-cell">
+                                <button class="btn-tiny minus" onclick="updateCount('s5-db-norep', -1)">-</button>
+                                <input type="number" class="val-tiny-input err" id="s5-db-norep" value="0">
+                                <button class="btn-tiny plus-err" onclick="updateCount('s5-db-norep', 1)">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <button class="btn-main s5" style="margin-top:0.8rem;" onclick="validateS5DeathBy()">✅ Valider Death By & Voir Feedback</button>
+                <div id="s5-db-feedback" style="display:none; margin-top:1rem;"></div>
+            </div>
+
+            <!-- BLOC 2 : TEAM WOD 170 REPS FOR TIME -->
+            <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.35);">
+                <h3 style="margin-top:0; color:var(--secondary); text-align:center;">BLOC 2 : TEAM WOD - 170 REPS FOR TIME (TEST)</h3>
+                <div style="background:rgba(0,0,0,0.25); padding:0.9rem; border-radius:10px; text-align:center; font-size:0.92rem; margin-bottom:1rem; line-height:1.6;">
+                    <span style="color:var(--text-muted); font-size:0.8rem;">En relais libre par 2 (1 seul travaille à la fois) :</span><br>
+                    <strong>40</strong> Mountain Climbers • <strong>20</strong> Push-Up<br>
+                    <strong>30</strong> Squats • <strong>80</strong> Jumping Jacks
+                </div>
+
+                <label>👥 Composition du binôme & Juges (1 ou 2) :</label>
+                <div style="background:rgba(0,0,0,0.2); padding:0.9rem; border-radius:12px; margin-bottom:1rem;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.6rem;">Athlète 1 : <strong id="s5-ath1-display" style="color:var(--primary);"></strong></div>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">2e Athlète (Partenaire) :</span>
+                    <div class="select-wrapper">
+                        <select id="s5-athlete2" style="margin-bottom:0.8rem;"><option value="">-- Choisir le 2e athlète --</option></select>
+                    </div>
+                    <div class="eval-grid-2">
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Juge 1 :</span>
+                            <select id="s5-juge1" style="margin-bottom:0.3rem;"><option value="">-- Juge 1 --</option></select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Juge 2 (optionnel) :</span>
+                            <select id="s5-juge2" style="margin-bottom:0.3rem;"><option value="">-- Aucun (1 juge) --</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <label>Temps final du binôme :</label>
+                <div class="eval-grid-2" style="margin-bottom:0.5rem;">
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Minutes</span>
+                        <input type="number" class="main-input" id="s5-tw-min" placeholder="Ex: 3" min="0" max="30" style="margin-bottom:0.5rem;">
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Secondes</span>
+                        <input type="number" class="main-input" id="s5-tw-sec" placeholder="Ex: 15" min="0" max="59" style="margin-bottom:0.5rem;">
+                    </div>
+                </div>
+
+                <table class="tour-table">
+                    <tr>
+                        <td style="color:var(--danger);">❌ NO REP Team WOD</td>
+                        <td>
+                            <div class="ctrl-cell">
+                                <button class="btn-tiny minus" onclick="updateCount('s5-tw-norep', -1)">-</button>
+                                <input type="number" class="val-tiny-input err" id="s5-tw-norep" value="0">
+                                <button class="btn-tiny plus-err" onclick="updateCount('s5-tw-norep', 1)">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <button class="btn-main prof" style="margin-top:0.8rem;" onclick="validateS5TeamWod()">✅ Valider Team WOD</button>
+                <div id="s5-tw-feedback" style="display:none; margin-top:1rem;"></div>
+            </div>
+
+            <button class="btn-main" id="btn-save-s5" onclick="saveSession5()">📤 ENREGISTRER LA SÉANCE 5</button>
+            <button class="btn-secondary" onclick="navTo('view-student-menu')">Retour au menu</button>
+        </div>
+
+        <!-- VUE ELEVE S6 : RÉPÉTITION GÉNÉRALE -->
+        <div id="view-s6" class="view">
+            <h2 style="text-align: center; color: #06b6d4;">🎯 S6 : RÉPÉTITION GÉNÉRALE</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">Testez et validez votre contrat définitif avant l'évaluation officielle.</p>
+
+            <!-- SIMULATION WOD 1 : E2MOM 10 MIN -->
+            <div class="card" style="border: 1px solid rgba(6, 182, 212, 0.35);">
+                <h3 style="margin-top:0; color:#06b6d4; text-align:center;">SIMULATION WOD 1 : E2MOM 10 MIN</h3>
+                <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:0;">5 tours de 2 minutes • Chrono général géré par l'enseignant</p>
+
+                <!-- CONTRAT TESTÉ & 4 NIVEAUX -->
+                <label>Contrat testé (répétitions / tour) :</label>
+                <div class="select-wrapper">
+                    <select id="s6-contrat">
+                        <option value="20">Contrat 20 reps / tour (1 pt)</option>
+                        <option value="30" selected>Contrat 30 reps / tour (2 pts)</option>
+                        <option value="40">Contrat 40 reps / tour (3 pts)</option>
+                    </select>
+                </div>
+
+                <label>Niveaux testés sur les 4 mouvements :</label>
+                <div class="eval-grid-2" style="margin-bottom:0.5rem;">
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 1</span>
+                        <select id="s6-lvl1" style="margin-bottom:0.8rem;"><option value="1">N1</option><option value="2">N2</option><option value="3">N3</option></select>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 2</span>
+                        <select id="s6-lvl2" style="margin-bottom:0.8rem;"><option value="1">N1</option><option value="2">N2</option><option value="3">N3</option></select>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 3</span>
+                        <select id="s6-lvl3" style="margin-bottom:0.8rem;"><option value="1">N1</option><option value="2">N2</option><option value="3">N3</option></select>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 4</span>
+                        <select id="s6-lvl4" style="margin-bottom:0.8rem;"><option value="1">N1</option><option value="2">N2</option><option value="3">N3</option></select>
+                    </div>
+                </div>
+
+                <!-- COMPTEUR NO REP PAR TOUR (R1 à R5) -->
+                <h4 style="margin:0.8rem 0 0.5rem 0; color:var(--danger); text-align:center; font-size:0.95rem;">❌ NO REP PAR TOUR (R1 à R5)</h4>
+                <table class="tour-table">
+                    <tr><th>Tour</th><th>Fautes (No Rep)</th></tr>
+                    <tr><td>Round 1 (R1)</td><td><div class="ctrl-cell"><button class="btn-tiny minus" onclick="updateCount('s6-r1', -1)">-</button><input type="number" class="val-tiny-input err" id="s6-r1" value="0"><button class="btn-tiny plus-err" onclick="updateCount('s6-r1', 1)">+</button></div></td></tr>
+                    <tr><td>Round 2 (R2)</td><td><div class="ctrl-cell"><button class="btn-tiny minus" onclick="updateCount('s6-r2', -1)">-</button><input type="number" class="val-tiny-input err" id="s6-r2" value="0"><button class="btn-tiny plus-err" onclick="updateCount('s6-r2', 1)">+</button></div></td></tr>
+                    <tr><td>Round 3 (R3)</td><td><div class="ctrl-cell"><button class="btn-tiny minus" onclick="updateCount('s6-r3', -1)">-</button><input type="number" class="val-tiny-input err" id="s6-r3" value="0"><button class="btn-tiny plus-err" onclick="updateCount('s6-r3', 1)">+</button></div></td></tr>
+                    <tr><td>Round 4 (R4)</td><td><div class="ctrl-cell"><button class="btn-tiny minus" onclick="updateCount('s6-r4', -1)">-</button><input type="number" class="val-tiny-input err" id="s6-r4" value="0"><button class="btn-tiny plus-err" onclick="updateCount('s6-r4', 1)">+</button></div></td></tr>
+                    <tr><td>Round 5 (R5)</td><td><div class="ctrl-cell"><button class="btn-tiny minus" onclick="updateCount('s6-r5', -1)">-</button><input type="number" class="val-tiny-input err" id="s6-r5" value="0"><button class="btn-tiny plus-err" onclick="updateCount('s6-r5', 1)">+</button></div></td></tr>
+                </table>
+
+                <label style="margin-top:1rem;">Tous les tours ont-ils été finis dans les 2 minutes ?</label>
+                <div class="select-wrapper">
+                    <select id="s6-time-ok">
+                        <option value="yes">✅ Oui, contrat bouclé dans les temps à chaque tour</option>
+                        <option value="no">❌ Non, dépassement des 2 minutes sur au moins un tour</option>
+                    </select>
+                </div>
+
+                <button class="btn-main s6" onclick="analyzeS6Wod1()">🔍 Analyser mon contrat E2MOM</button>
+                <div id="s6-feedback-box" style="display:none; margin-top:1rem;"></div>
+            </div>
+
+            <!-- SIMULATION WOD 2 : TEAM WOD 170 REPS -->
+            <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.35);">
+                <h3 style="margin-top:0; color:var(--secondary); text-align:center;">SIMULATION WOD 2 : TEAM WOD 170 REPS</h3>
+                <div style="background:rgba(0,0,0,0.25); padding:0.9rem; border-radius:10px; text-align:center; font-size:0.92rem; margin-bottom:1rem; line-height:1.6;">
+                    <strong>40</strong> Mountain Climbers • <strong>20</strong> Pompes<br>
+                    <strong>30</strong> Squats • <strong>80</strong> Jumping Jacks
+                </div>
+
+                <label>👥 Composition du binôme & Juges (1 ou 2) :</label>
+                <div style="background:rgba(0,0,0,0.2); padding:0.9rem; border-radius:12px; margin-bottom:1rem;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.6rem;">Athlète 1 : <strong id="s6-ath1-display" style="color:var(--primary);"></strong></div>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">2e Athlète (Partenaire) :</span>
+                    <div class="select-wrapper">
+                        <select id="s6-athlete2" style="margin-bottom:0.8rem;"><option value="">-- Choisir le 2e athlète --</option></select>
+                    </div>
+                    <div class="eval-grid-2">
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Juge 1 :</span>
+                            <select id="s6-juge1" style="margin-bottom:0.3rem;"><option value="">-- Juge 1 --</option></select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Juge 2 (optionnel) :</span>
+                            <select id="s6-juge2" style="margin-bottom:0.3rem;"><option value="">-- Aucun (1 juge) --</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <label>Temps de référence estimé :</label>
+                <div class="eval-grid-2">
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Minutes</span>
+                        <input type="number" class="main-input" id="s6-tw-min" placeholder="Ex: 2" min="0" max="30" style="margin-bottom:0.5rem;">
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Secondes</span>
+                        <input type="number" class="main-input" id="s6-tw-sec" placeholder="Ex: 55" min="0" max="59" style="margin-bottom:0.5rem;">
+                    </div>
+                </div>
+
+                <table class="tour-table">
+                    <tr>
+                        <td style="color:var(--danger);">❌ NO REP Team WOD</td>
+                        <td>
+                            <div class="ctrl-cell">
+                                <button class="btn-tiny minus" onclick="updateCount('s6-tw-norep', -1)">-</button>
+                                <input type="number" class="val-tiny-input err" id="s6-tw-norep" value="0">
+                                <button class="btn-tiny plus-err" onclick="updateCount('s6-tw-norep', 1)">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <button class="btn-main prof" style="margin-top:0.8rem;" onclick="analyzeS6Wod2()">🔍 Analyser le Team WOD</button>
+                <div id="s6-tw-feedback" style="display:none; margin-top:1rem;"></div>
+            </div>
+
+            <button class="btn-main" id="btn-save-s6" onclick="saveSession6()">📤 ENREGISTRER MA RÉPÉTITION GÉNÉRALE</button>
+            <button class="btn-secondary" onclick="navTo('view-student-menu')">Retour au menu</button>
+        </div>
+
+        <!-- VUE ELEVE : ÉVALUATION OFFICIELLE (/20) -->
+        <div id="view-eval" class="view">
+            <h2 style="text-align: center; color: #eab308;">📝 ÉVALUATION OFFICIELLE (/20)</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.2rem;">Feuille de match officielle • Calcul automatique selon le barème EPS.</p>
+
+            <!-- 1. WOD 1 : E2MOM 10 MIN -->
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--primary); font-size:1.05rem;">1. WOD 1 : E2MOM 10 MIN</h3>
+                <label>Niveau choisi pour chacun des 4 mouvements (Max = 12 pts) :</label>
+                <div class="eval-grid-2">
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 1</span>
+                        <select id="eval-lvl1" style="margin-bottom:0.8rem;"><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 2</span>
+                        <select id="eval-lvl2" style="margin-bottom:0.8rem;"><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 3</span>
+                        <select id="eval-lvl3" style="margin-bottom:0.8rem;"><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Mouvement 4</span>
+                        <select id="eval-lvl4" style="margin-bottom:0.8rem;"><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                    </div>
+                </div>
+
+                <label>Contrat validé sur les 5 tours :</label>
+                <div class="select-wrapper">
+                    <select id="eval-contrat">
+                        <option value="20">Contrat 20 reps / tour (1 pt)</option>
+                        <option value="30">Contrat 30 reps / tour (2 pts)</option>
+                        <option value="40">Contrat 40 reps / tour (3 pts)</option>
+                    </select>
+                </div>
+
+                <table class="tour-table" style="margin-top:0.5rem;">
+                    <tr>
+                        <td style="color:var(--danger);">❌ Total NO REP (5 tours)</td>
+                        <td>
+                            <div class="ctrl-cell">
+                                <button class="btn-tiny minus" onclick="updateCount('eval-norep', -1)">-</button>
+                                <input type="number" class="val-tiny-input err" id="eval-norep" value="0">
+                                <button class="btn-tiny plus-err" onclick="updateCount('eval-norep', 1)">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 2. WOD 2 : TEAM WOD 170 REPS -->
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--secondary); font-size:1.05rem;">2. WOD 2 : TEAM WOD 170 REPS (PAR 2)</h3>
+                <div style="background:rgba(0,0,0,0.2); padding:0.9rem; border-radius:12px; margin-bottom:1rem;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.6rem;">Athlète 1 : <strong id="eval-ath1-display" style="color:var(--primary);"></strong></div>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">2e Athlète (Partenaire) :</span>
+                    <div class="select-wrapper">
+                        <select id="eval-athlete2" style="margin-bottom:0.8rem;"><option value="">-- Choisir le 2e athlète --</option></select>
+                    </div>
+                    <div class="eval-grid-2">
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Juge 1 :</span>
+                            <select id="eval-juge1" style="margin-bottom:0.3rem;"><option value="">-- Juge 1 --</option></select>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Juge 2 (optionnel) :</span>
+                            <select id="eval-juge2" style="margin-bottom:0.3rem;"><option value="">-- Aucun (1 juge) --</option></select>
+                        </div>
+                    </div>
+                </div>
+                <label>Temps officiel réalisé par le binôme :</label>
+                <div class="eval-grid-2">
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Minutes</span>
+                        <input type="number" class="main-input" id="eval-tw-min" placeholder="Ex: 2" min="0" max="30" style="margin-bottom:0.5rem;">
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Secondes</span>
+                        <input type="number" class="main-input" id="eval-tw-sec" placeholder="Ex: 45" min="0" max="59" style="margin-bottom:0.5rem;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. RÔLES SOCIAUX & PRÉPARATION -->
+            <div class="card">
+                <h3 style="margin-top:0; color:var(--tertiary); font-size:1.05rem;">3. RÔLES SOCIAUX & PRÉPARATION (/8)</h3>
+                <label>Juge / Coach (/4 pts) :</label>
+                <div class="select-wrapper">
+                    <select id="eval-juge-pts">
+                        <option value="0">Spectateur (0 pt)</option>
+                        <option value="1.5">Amateur (1.5 pts)</option>
+                        <option value="3">Confirmé (3 pts)</option>
+                        <option value="4">Pro (4 pts)</option>
+                    </select>
+                </div>
+
+                <label>Préparer son WOD / Échauffement (/4 pts) :</label>
+                <div class="select-wrapper">
+                    <select id="eval-prepa-pts">
+                        <option value="0">Anecdotique (0 pt)</option>
+                        <option value="1.5">Insuffisant (1.5 pts)</option>
+                        <option value="3">Efficace (3 pts)</option>
+                        <option value="4">Cohérent et varié (4 pts)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-main eval-btn" onclick="calculateOfficialEvaluation()">🧮 CALCULER LA NOTE FINALE (/20)</button>
+
+            <!-- BILAN FINAL ÉVALUATION -->
+            <div id="eval-bilan-container" style="display:none; margin-top:1.5rem;"></div>
+
+            <button class="btn-secondary" onclick="navTo('view-student-menu')">Retour au menu</button>
+        </div>
+
         <!-- VUE ELEVE BILAN SIMPLIFIÉ (S1-S3) -->
         <div id="view-student-bilan" class="view">
             <h2 style="text-align: center; color: var(--primary);">📊 BILAN DE LA SÉANCE</h2>
@@ -471,11 +837,14 @@
             <thead>
                 <tr>
                     <th>Élève</th>
-                    <th>SÉANCE 1</th>
-                    <th>SÉANCE 2</th>
-                    <th>SÉANCE 3</th>
-                    <th>SÉANCE 4</th>
-                    <th>BILAN GLOBAL</th>
+                    <th>S1</th>
+                    <th>S2</th>
+                    <th>S3</th>
+                    <th>S4</th>
+                    <th>S5</th>
+                    <th>S6</th>
+                    <th>NOTE /20</th>
+                    <th>MOY S1-3</th>
                 </tr>
             </thead>
             <tbody id="pdf-tbody"></tbody>
@@ -595,7 +964,7 @@
             }
         };
 
-        let currentClass = "", currentJudge = "", currentAthlete = "", extractedStudents = [];
+        let currentClass = "", currentJudge = "", currentAthlete = "", extractedStudents = [], classStudentsList = [];
         let currentSessionId = "S1", currentPayload = null, progressChartInstance = null;
         let viewBeforeReferentiel = "", profMatrixData = {}, currentRoster = [];
 
@@ -872,6 +1241,7 @@
                 const doc = await db.collection('classes').doc(className).get();
                 if(doc.exists) {
                     const students = doc.data().students;
+                    classStudentsList = students || [];
                     let html = '<option value="">-- Sélectionner un nom --</option>';
                     students.forEach(s => html += `<option value="${s}">${s}</option>`);
                     selectJ.innerHTML = html; selectA.innerHTML = html;
@@ -1168,6 +1538,670 @@
             finally { btn.textContent = "📤 ENREGISTRER MA SÉANCE"; btn.disabled = false; }
         }
 
+        // ================== UTILITAIRES BINÔME & SURNOMS TEAM WOD ==================
+        function populateTeamWodSelectors(prefix) {
+            const ath1El = document.getElementById(`${prefix}-ath1-display`);
+            if (ath1El) ath1El.textContent = currentAthlete || '-';
+
+            const selAth2 = document.getElementById(`${prefix}-athlete2`);
+            const selJ1 = document.getElementById(`${prefix}-juge1`);
+            const selJ2 = document.getElementById(`${prefix}-juge2`);
+            if (!selAth2 || !selJ1 || !selJ2) return;
+
+            let htmlAth2 = '<option value="">-- Choisir le 2e athlète --</option>';
+            let htmlJ1 = '<option value="">-- Juge 1 --</option>';
+            let htmlJ2 = '<option value="">-- Aucun (1 seul juge) --</option>';
+
+            classStudentsList.forEach(s => {
+                if (s !== currentAthlete) {
+                    htmlAth2 += `<option value="${s}">${s}</option>`;
+                }
+                htmlJ1 += `<option value="${s}" ${s === currentJudge ? 'selected' : ''}>${s}</option>`;
+                htmlJ2 += `<option value="${s}">${s}</option>`;
+            });
+
+            selAth2.innerHTML = htmlAth2;
+            selJ1.innerHTML = htmlJ1;
+            selJ2.innerHTML = htmlJ2;
+        }
+
+        function getTeamWodProfile(totalSec, noRep, ath1, ath2, j1, j2) {
+            const duoLabel = ath2 ? `${ath1} & ${ath2}` : ath1;
+            const jugesLabel = j2 ? `${j1} & ${j2}` : (j1 || 'Non renseigné');
+            let p = {};
+
+            if (totalSec <= 150 && noRep <= 2) {
+                p = {
+                    title: "🦾 BINÔME MACHINE DE GUERRE",
+                    desc: `Chrono explosé (${formatTimeQuote(totalSec)}) avec seulement ${noRep} No-Rep ! Relais ultra-rapides, zéro temps mort et technique irréprochable.`,
+                    badge: "badge-vert", color: "#fbbf24"
+                };
+            } else if (noRep === 0 && totalSec <= 195) {
+                p = {
+                    title: "🎯 DUO DE SNIPERS",
+                    desc: `0 No-Rep sur les 170 répétitions ! ${duoLabel} privilégient la précision chirurgicale et la propreté motrice sous l'œil vigilant de ${jugesLabel}.`,
+                    badge: "badge-vert", color: "var(--primary)"
+                };
+            } else if (totalSec <= 170 && noRep >= 5) {
+                p = {
+                    title: "🦍 LES BULLDOZERS",
+                    desc: `Puissance et vitesse impressionnantes (${formatTimeQuote(totalSec)}), mais ${noRep} No-Rep viennent freiner votre score ! Canalisez votre énergie sur les Push-Up et Squats.`,
+                    badge: "badge-jaune", color: "var(--warning)"
+                };
+            } else if (totalSec <= 190 && noRep <= 3) {
+                p = {
+                    title: "⏱️ LES MÉTRONOMES",
+                    desc: `Gestion de relais millimétrée (${formatTimeQuote(totalSec)}, ${noRep} No-Rep). Vous avez su garder un rythme régulier du début à la fin !`,
+                    badge: "badge-vert", color: "var(--success)"
+                };
+            } else if (totalSec <= 230 && noRep <= 3) {
+                p = {
+                    title: "🚜 LES DIESELS",
+                    desc: `Un circuit solide et propre (${formatTimeQuote(totalSec)}, ${noRep} No-Rep). Raccourcissez un peu vos séries pour dynamiser les changements de relais !`,
+                    badge: "badge-jaune", color: "var(--tertiary)"
+                };
+            } else if (noRep >= 5) {
+                p = {
+                    title: "🧨 LES ÉTOILES FILANTES",
+                    desc: `Départ trop rapide sur les Mountain Climbers, puis la fatigue a provoqué ${noRep} No-Rep (${formatTimeQuote(totalSec)}). Partez plus contrôlés pour finir fort !`,
+                    badge: "badge-rouge", color: "var(--danger)"
+                };
+            } else {
+                p = {
+                    title: "🌱 BINÔME EN CONSTRUCTION",
+                    desc: `Circuit bouclé proprement (${formatTimeQuote(totalSec)}, ${noRep} No-Rep). Bonne coopération, cherchez maintenant à accélérer les transitions sur les 80 Jumping Jacks !`,
+                    badge: "badge-gris", color: "var(--text-main)"
+                };
+            }
+            p.duoLabel = duoLabel;
+            p.jugesLabel = jugesLabel;
+            return p;
+        }
+
+        function formatTimeQuote(totalSec) {
+            const m = Math.floor(totalSec / 60);
+            const s = totalSec % 60;
+            return `${m}'${String(s).padStart(2, '0')}"`;
+        }
+
+        // ================== LOGIQUE S5 : DEATH BY & TEAM WOD ==================
+        let s5DbData = null, s5TwData = null;
+
+        function startSession5() {
+            currentSessionId = "S5";
+            populateTeamWodSelectors('s5');
+            document.getElementById('s5-db-mins').value = 0;
+            document.getElementById('s5-db-norep').value = 0;
+            document.getElementById('s5-db-feedback').style.display = 'none';
+            document.getElementById('s5-tw-min').value = '';
+            document.getElementById('s5-tw-sec').value = '';
+            document.getElementById('s5-tw-norep').value = 0;
+            document.getElementById('s5-tw-feedback').style.display = 'none';
+            s5DbData = null; s5TwData = null;
+            navTo('view-s5');
+        }
+
+        function validateS5DeathBy() {
+            const mins = parseInt(document.getElementById('s5-db-mins').value) || 0;
+            const noRep = parseInt(document.getElementById('s5-db-norep').value) || 0;
+
+            let fb = {};
+            if (mins >= 9 && noRep <= 2) {
+                fb = {
+                    title: "👑 MACHINE DE GUERRE",
+                    desc: `${mins} minutes validées avec seulement ${noRep} No-Rep ! Tu encaisses l'acidose musculaire sans jamais lâcher ta posture. Niveau exceptionnel !`,
+                    badge: "badge-vert", color: "#fbbf24"
+                };
+            } else if (noRep === 0 && mins >= 5) {
+                fb = {
+                    title: "🎯 LE SNIPER",
+                    desc: `${mins} minutes validées avec 0 No-Rep ! Précision chirurgicale : tes Burpees et tes Squats/Fentes restent 100% conformes sous fatigue.`,
+                    badge: "badge-vert", color: "var(--primary)"
+                };
+            } else if (mins >= 7 && noRep <= 4) {
+                fb = {
+                    title: "🛡️ LE SPARTIATE",
+                    desc: `${mins} minutes validées (${noRep} No-Rep). Gros mental dans la zone rouge : ta posture résiste à la brûlure musculaire !`,
+                    badge: "badge-vert", color: "var(--secondary)"
+                };
+            } else if (mins >= 7 && noRep >= 5) {
+                fb = {
+                    title: "🦍 LE BULLDOZER",
+                    desc: `Gros moteur (${mins} minutes), mais ${noRep} No-Rep sous l'acidose ! Ralentis légèrement la transition sur les Burpees pour verrouiller ton dos.`,
+                    badge: "badge-jaune", color: "var(--warning)"
+                };
+            } else if (mins >= 4 && noRep <= 2) {
+                fb = {
+                    title: "🚜 LE DIESEL",
+                    desc: `${mins} minutes validées et ${noRep} No-Rep. Placement propre et régulier ; essaie d'accélérer légèrement le rythme dès la minute 4 !`,
+                    badge: "badge-jaune", color: "var(--tertiary)"
+                };
+            } else if (noRep >= 5) {
+                fb = {
+                    title: "🪂 LE KAMIKAZE",
+                    desc: `${mins} minute(s) mais ${noRep} No-Rep : tu es parti trop vite et la posture s'est dégradée sous fatigue. Privilégie la qualité du mouvement !`,
+                    badge: "badge-rouge", color: "var(--danger)"
+                };
+            } else {
+                fb = {
+                    title: "🌱 L'APPRENTI",
+                    desc: `${mins} minute(s) validée(s) avec ${noRep} No-Rep. Bon respect des critères techniques, continue de développer ton endurance musculaire !`,
+                    badge: "badge-gris", color: "var(--text-main)"
+                };
+            }
+
+            s5DbData = { mins, noRep, title: fb.title, desc: fb.desc, badge: fb.badge };
+            const box = document.getElementById('s5-db-feedback');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <div style="background:rgba(0,0,0,0.3); border:2px solid ${fb.color}; border-radius:12px; padding:1rem; text-align:center;">
+                    <div class="badge ${fb.badge}" style="margin-bottom:0.5rem;">${mins} min • ❌ ${noRep} No-Rep</div>
+                    <div style="font-weight:900; color:${fb.color}; font-size:1.2rem; margin-bottom:0.4rem;">${fb.title}</div>
+                    <p style="font-size:0.85rem; color:var(--text-main); margin:0;">${fb.desc}</p>
+                </div>
+            `;
+        }
+
+        function validateS5TeamWod() {
+            const m = parseInt(document.getElementById('s5-tw-min').value) || 0;
+            const s = parseInt(document.getElementById('s5-tw-sec').value) || 0;
+            const noRep = parseInt(document.getElementById('s5-tw-norep').value) || 0;
+            const athlete2 = document.getElementById('s5-athlete2').value || '';
+            const j1 = document.getElementById('s5-juge1').value || currentJudge;
+            const j2 = document.getElementById('s5-juge2').value || '';
+            const totalSec = m * 60 + s;
+            if (totalSec <= 0) return showAlert("⚠️ Saisis le temps final du Team WOD.");
+
+            const timeStr = `${m}'${String(s).padStart(2, '0')}"`;
+            const prof = getTeamWodProfile(totalSec, noRep, currentAthlete, athlete2, j1, j2);
+
+            s5TwData = {
+                min: m, sec: s, totalSec, timeStr, noRep,
+                athlete2, juge1: j1, juge2: j2,
+                profilTitle: prof.title, profilDesc: prof.desc, badge: prof.badge
+            };
+            const box = document.getElementById('s5-tw-feedback');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <div style="background:rgba(0,0,0,0.3); border:2px solid ${prof.color}; border-radius:12px; padding:1rem; text-align:center;">
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Binôme : <strong>${prof.duoLabel}</strong> • Juge(s) : <strong>${prof.jugesLabel}</strong></div>
+                    <div class="badge ${prof.badge}" style="margin-bottom:0.5rem;">⏱️ ${timeStr} • ❌ ${noRep} No-Rep</div>
+                    <div style="font-weight:900; color:${prof.color}; font-size:1.15rem; margin-bottom:0.4rem;">${prof.title}</div>
+                    <p style="font-size:0.85rem; color:var(--text-main); margin:0;">${prof.desc}</p>
+                </div>
+            `;
+        }
+
+        async function saveSession5() {
+            if (!s5DbData) validateS5DeathBy();
+            const m = parseInt(document.getElementById('s5-tw-min').value) || 0;
+            const s = parseInt(document.getElementById('s5-tw-sec').value) || 0;
+            if (!s5TwData && (m > 0 || s > 0)) validateS5TeamWod();
+
+            const j1 = (s5TwData && s5TwData.juge1) || document.getElementById('s5-juge1').value || currentJudge;
+            const j2 = (s5TwData && s5TwData.juge2) || document.getElementById('s5-juge2').value || '';
+            const ath2 = (s5TwData && s5TwData.athlete2) || document.getElementById('s5-athlete2').value || '';
+
+            const payload = {
+                timestamp: new Date(),
+                classe: currentClass,
+                juge: j1,
+                juge2: j2,
+                athlete: currentAthlete,
+                partenaire: ath2,
+                seance: "S5",
+                type: "deathby",
+                deathBy: s5DbData,
+                teamWod: s5TwData || null
+            };
+            const btn = document.getElementById('btn-save-s5');
+            btn.textContent = "⏳ Enregistrement..."; btn.disabled = true;
+            try {
+                const status = await savePayloadSafely(payload);
+                // Sauvegarde miroir du Team WOD pour le 2e athlète
+                if (ath2 && s5TwData) {
+                    const partnerPayload = {
+                        timestamp: new Date(),
+                        classe: currentClass,
+                        juge: j1,
+                        juge2: j2,
+                        athlete: ath2,
+                        partenaire: currentAthlete,
+                        seance: "S5",
+                        type: "deathby",
+                        deathBy: { mins: 0, noRep: 0, title: `🤝 Team WOD avec ${currentAthlete}`, badge: s5TwData.badge },
+                        teamWod: Object.assign({}, s5TwData, { athlete2: currentAthlete })
+                    };
+                    await savePayloadSafely(partnerPayload);
+                }
+                showAlert(status === 'cloud' ? "✅ Séance 5 enregistrée !" : "📶 Séance 5 sauvegardée hors-ligne !");
+                loadHistorique(true);
+            } catch (e) {
+                showAlert("⚠️ Sauvegardé localement.");
+                loadHistorique(true);
+            } finally {
+                btn.textContent = "📤 ENREGISTRER LA SÉANCE 5"; btn.disabled = false;
+            }
+        }
+
+        // ================== LOGIQUE S6 : RÉPÉTITION GÉNÉRALE ==================
+        let s6Analysis = null, s6TwAnalysis = null;
+
+        function startSession6() {
+            currentSessionId = "S6";
+            populateTeamWodSelectors('s6');
+            for (let r = 1; r <= 5; r++) document.getElementById(`s6-r${r}`).value = 0;
+            document.getElementById('s6-time-ok').value = 'yes';
+            document.getElementById('s6-feedback-box').style.display = 'none';
+            document.getElementById('s6-tw-min').value = '';
+            document.getElementById('s6-tw-sec').value = '';
+            document.getElementById('s6-tw-norep').value = 0;
+            document.getElementById('s6-tw-feedback').style.display = 'none';
+            s6Analysis = null; s6TwAnalysis = null;
+            navTo('view-s6');
+        }
+
+        function analyzeS6Wod1() {
+            const contrat = parseInt(document.getElementById('s6-contrat').value) || 20;
+            const l1 = parseInt(document.getElementById('s6-lvl1').value) || 1;
+            const l2 = parseInt(document.getElementById('s6-lvl2').value) || 1;
+            const l3 = parseInt(document.getElementById('s6-lvl3').value) || 1;
+            const l4 = parseInt(document.getElementById('s6-lvl4').value) || 1;
+            const sumLvl = l1 + l2 + l3 + l4;
+
+            const r1 = parseInt(document.getElementById('s6-r1').value) || 0;
+            const r2 = parseInt(document.getElementById('s6-r2').value) || 0;
+            const r3 = parseInt(document.getElementById('s6-r3').value) || 0;
+            const r4 = parseInt(document.getElementById('s6-r4').value) || 0;
+            const r5 = parseInt(document.getElementById('s6-r5').value) || 0;
+            const totalNoRep = r1 + r2 + r3 + r4 + r5;
+            const timeOk = document.getElementById('s6-time-ok').value === 'yes';
+
+            let conseil = {};
+            if (!timeOk && totalNoRep > 4) {
+                conseil = {
+                    title: "🪂 LE KAMIKAZE — CONTRAT TROP ÉLEVÉ",
+                    desc: `Tu as cumulé ${totalNoRep} No-Rep ET dépassé les 2 minutes. Pour l'évaluation officielle, baisse ton contrat (passe à ${Math.max(20, contrat - 10)} reps) ET réduis un niveau de difficulté pour sécuriser tes points !`,
+                    badge: "badge-rouge", color: "var(--danger)"
+                };
+            } else if (!timeOk) {
+                conseil = {
+                    title: "🧨 L'ÉTOILE FILANTE — TEMPS DÉPASSÉ (> 2 MIN)",
+                    desc: `Ta technique est propre (${totalNoRep} No-Rep), mais tu n'as pas fini dans les 2 minutes. Baisse ton contrat à ${Math.max(20, contrat - 10)} reps pour garder du temps de récupération avant le tour suivant.`,
+                    badge: "badge-orange", color: "var(--warning)"
+                };
+            } else if (totalNoRep > 4) {
+                conseil = {
+                    title: "🦍 LE BULLDOZER — TROP DE NO-REP (" + totalNoRep + " FAUTES)",
+                    desc: `Tu finis dans les temps, mais ${totalNoRep} No-Rep te coûtent trop cher sur la note de Maîtrise ! Baisse d'un niveau sur l'atelier où tu fais des fautes ou ralentis légèrement ton rythme.`,
+                    badge: "badge-orange", color: "var(--warning)"
+                };
+            } else if (contrat === 40 && sumLvl >= 10 && totalNoRep <= 2) {
+                conseil = {
+                    title: "👑 MACHINE DE GUERRE — PRÊT POUR L'ÉLITE !",
+                    desc: `Contrat 40 reps (Niveaux ${l1}/${l2}/${l3}/${l4}, somme ${sumLvl}/12) bouclé dans les temps avec seulement ${totalNoRep} No-Rep. Tu es calibré(e) pour viser la note maximale !`,
+                    badge: "badge-vert", color: "#fbbf24"
+                };
+            } else if (totalNoRep === 0) {
+                conseil = {
+                    title: "🎯 LE SNIPER — CONTRAT VALIDÉ SANS FAUTE !",
+                    desc: `0 No-Rep sur les 5 tours du contrat ${contrat} reps (Niveaux ${l1}/${l2}/${l3}/${l4}) ! Ta maîtrise technique est parfaite pour l'évaluation.`,
+                    badge: "badge-vert", color: "var(--primary)"
+                };
+            } else {
+                conseil = {
+                    title: "⏱️ LE MÉTRONOME — CONTRAT VALIDÉ !",
+                    desc: `Super répétition générale ! Contrat ${contrat} reps (Niveaux ${l1}/${l2}/${l3}/${l4}, somme ${sumLvl}/12) bouclé dans les temps avec ${totalNoRep} No-Rep. Garde exactement ce plan pour l'évaluation !`,
+                    badge: "badge-vert", color: "var(--success)"
+                };
+            }
+
+            s6Analysis = { contrat, levels: [l1, l2, l3, l4], sumLvl, roundsNoRep: [r1, r2, r3, r4, r5], totalNoRep, timeOk, title: conseil.title, desc: conseil.desc, badge: conseil.badge };
+
+            const box = document.getElementById('s6-feedback-box');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <div style="background:rgba(0,0,0,0.3); border:2px solid ${conseil.color}; border-radius:12px; padding:1rem; text-align:center;">
+                    <div class="badge ${conseil.badge}" style="margin-bottom:0.5rem;">Contrat ${contrat} • ❌ ${totalNoRep} No-Rep</div>
+                    <div style="font-weight:900; color:${conseil.color}; font-size:1.05rem; margin-bottom:0.4rem;">${conseil.title}</div>
+                    <p style="font-size:0.85rem; color:var(--text-main); margin:0;">${conseil.desc}</p>
+                </div>
+            `;
+        }
+
+        function analyzeS6Wod2() {
+            const m = parseInt(document.getElementById('s6-tw-min').value) || 0;
+            const s = parseInt(document.getElementById('s6-tw-sec').value) || 0;
+            const noRep = parseInt(document.getElementById('s6-tw-norep').value) || 0;
+            const athlete2 = document.getElementById('s6-athlete2').value || '';
+            const j1 = document.getElementById('s6-juge1').value || currentJudge;
+            const j2 = document.getElementById('s6-juge2').value || '';
+            const totalSec = m * 60 + s;
+            if (totalSec <= 0) return showAlert("⚠️ Saisis le temps du Team WOD.");
+
+            const timeStr = `${m}'${String(s).padStart(2, '0')}"`;
+            const estPts = getPtsTempsWod2(totalSec);
+            const prof = getTeamWodProfile(totalSec, noRep, currentAthlete, athlete2, j1, j2);
+
+            s6TwAnalysis = {
+                min: m, sec: s, totalSec, timeStr, noRep, estPts,
+                athlete2, juge1: j1, juge2: j2,
+                profilTitle: prof.title, profilDesc: prof.desc, badge: prof.badge
+            };
+
+            const box = document.getElementById('s6-tw-feedback');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <div style="background:rgba(0,0,0,0.3); border:2px solid ${prof.color}; border-radius:12px; padding:1rem; text-align:center;">
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Binôme : <strong>${prof.duoLabel}</strong> • Juge(s) : <strong>${prof.jugesLabel}</strong></div>
+                    <div class="badge ${prof.badge}" style="margin-bottom:0.5rem;">⏱️ ${timeStr} (Barème : ${estPts}/3 pts) • ❌ ${noRep} No-Rep</div>
+                    <div style="font-weight:900; color:${prof.color}; font-size:1.1rem; margin-bottom:0.4rem;">${prof.title}</div>
+                    <p style="font-size:0.85rem; color:var(--text-main); margin:0;">${prof.desc}</p>
+                </div>
+            `;
+        }
+
+        async function saveSession6() {
+            if (!s6Analysis) analyzeS6Wod1();
+            const m = parseInt(document.getElementById('s6-tw-min').value) || 0;
+            const s = parseInt(document.getElementById('s6-tw-sec').value) || 0;
+            if (!s6TwAnalysis && (m > 0 || s > 0)) analyzeS6Wod2();
+
+            const twSec = m * 60 + s;
+            const twStr = twSec > 0 ? `${m}'${String(s).padStart(2, '0')}"` : 'Non saisi';
+            const j1 = (s6TwAnalysis && s6TwAnalysis.juge1) || document.getElementById('s6-juge1').value || currentJudge;
+            const j2 = (s6TwAnalysis && s6TwAnalysis.juge2) || document.getElementById('s6-juge2').value || '';
+            const ath2 = (s6TwAnalysis && s6TwAnalysis.athlete2) || document.getElementById('s6-athlete2').value || '';
+
+            const payload = {
+                timestamp: new Date(),
+                classe: currentClass,
+                juge: j1,
+                juge2: j2,
+                athlete: currentAthlete,
+                partenaire: ath2,
+                seance: "S6",
+                type: "repetition",
+                wod1: s6Analysis,
+                teamWodRef: s6TwAnalysis || { min: m, sec: s, totalSec: twSec, timeStr: twStr, athlete2: ath2, juge1: j1, juge2: j2 }
+            };
+
+            const btn = document.getElementById('btn-save-s6');
+            btn.textContent = "⏳ Enregistrement..."; btn.disabled = true;
+            try {
+                const status = await savePayloadSafely(payload);
+                if (ath2 && twSec > 0) {
+                    const partnerPayload = {
+                        timestamp: new Date(),
+                        classe: currentClass,
+                        juge: j1,
+                        juge2: j2,
+                        athlete: ath2,
+                        partenaire: currentAthlete,
+                        seance: "S6",
+                        type: "repetition",
+                        wod1: { contrat: s6Analysis.contrat, totalNoRep: s6TwAnalysis ? s6TwAnalysis.noRep : 0, title: `🤝 Team WOD S6 avec ${currentAthlete}`, badge: s6TwAnalysis ? s6TwAnalysis.badge : 'badge-gris' },
+                        teamWodRef: Object.assign({}, payload.teamWodRef, { athlete2: currentAthlete })
+                    };
+                    await savePayloadSafely(partnerPayload);
+                }
+                showAlert(status === 'cloud' ? "✅ Répétition générale enregistrée !" : "📶 Sauvegardé hors-ligne !");
+                loadHistorique(true);
+            } catch (e) {
+                showAlert("⚠️ Sauvegardé localement.");
+                loadHistorique(true);
+            } finally {
+                btn.textContent = "📤 ENREGISTRER MA RÉPÉTITION GÉNÉRALE"; btn.disabled = false;
+            }
+        }
+
+        // ================== LOGIQUE ÉVALUATION OFFICIELLE (/20) ==================
+        let evalPayload = null;
+
+        function startEvaluation() {
+            currentSessionId = "EVAL";
+            populateTeamWodSelectors('eval');
+            document.getElementById('eval-lvl1').value = "1";
+            document.getElementById('eval-lvl2').value = "1";
+            document.getElementById('eval-lvl3').value = "1";
+            document.getElementById('eval-lvl4').value = "1";
+            document.getElementById('eval-contrat').value = "20";
+            document.getElementById('eval-norep').value = 0;
+            document.getElementById('eval-tw-min').value = '';
+            document.getElementById('eval-tw-sec').value = '';
+            document.getElementById('eval-juge-pts').value = "0";
+            document.getElementById('eval-prepa-pts').value = "0";
+            document.getElementById('eval-bilan-container').style.display = 'none';
+            evalPayload = null;
+            navTo('view-eval');
+        }
+
+        function getPtsSommeNiveaux(sum) {
+            if (sum >= 12) return 3;
+            if (sum === 11) return 2.5;
+            if (sum === 10) return 2.25;
+            if (sum === 9) return 1.75;
+            if (sum === 8) return 1.5;
+            if (sum === 7) return 1.25;
+            return 0;
+        }
+
+        function getPtsNoRep(nr) {
+            if (nr <= 2) return 3;
+            if (nr <= 4) return 2.5;
+            if (nr <= 6) return 2.25;
+            if (nr <= 8) return 1.75;
+            if (nr <= 10) return 1.5;
+            if (nr <= 12) return 1.25;
+            if (nr <= 14) return 1;
+            if (nr <= 16) return 0.75;
+            return 0.5;
+        }
+
+        function getPtsContrat(contrat) {
+            if (contrat === 40) return 3;
+            if (contrat === 30) return 2;
+            if (contrat === 20) return 1;
+            return 0;
+        }
+
+        function getPtsTempsWod2(totalSec) {
+            if (totalSec <= 140) return 3;      // <= 2'20"
+            if (totalSec <= 150) return 2.5;    // <= 2'30"
+            if (totalSec <= 170) return 2.25;   // <= 2'50"
+            if (totalSec <= 180) return 2;      // <= 3'00"
+            if (totalSec <= 190) return 1.75;   // <= 3'10"
+            if (totalSec <= 200) return 1.5;    // <= 3'20"
+            if (totalSec <= 210) return 1.25;   // <= 3'30"
+            if (totalSec <= 230) return 1;      // <= 3'50"
+            if (totalSec <= 250) return 0.5;    // <= 4'10"
+            return 0;
+        }
+
+        function getOfficialEvalNickname(noteFinale, noRep, contrat, totalSec) {
+            if (noteFinale >= 18 && noRep <= 2) {
+                return { title: "👑 MACHINE DE GUERRE", desc: "Performance complète d'exception ! Haute maîtrise technique, gros contrat et investissement exemplaire dans les rôles sociaux.", color: "#fbbf24" };
+            }
+            if (noRep <= 2 && noteFinale >= 15) {
+                return { title: "🎯 LE SNIPER", desc: "Précision chirurgicale ! Presque aucun No-Rep sous pression : ta qualité gestuelle te rapporte un maximum de points.", color: "var(--primary)" };
+            }
+            if (contrat === 40 && noRep >= 7) {
+                return { title: "🦍 LE BULLDOZER", desc: "Engagement physique énorme sur le gros contrat, mais les No-Rep te font perdre des points précieux en Maîtrise !", color: "var(--warning)" };
+            }
+            if (noteFinale >= 15 && noRep <= 4) {
+                return { title: "⏱️ LE MÉTRONOME", desc: "Évaluation parfaitement gérée ! Contrat maîtrisé, rythme constant sur les deux WOD et attitude sérieuse.", color: "var(--success)" };
+            }
+            if (totalSec <= 160 && noteFinale >= 13) {
+                return { title: "🛡️ LE SPARTIATE", desc: "Gros tempérament de combattant sur le Team WOD ! Tu as tout donné dans le relais pour aller chercher le chrono.", color: "var(--secondary)" };
+            }
+            if (noteFinale >= 11) {
+                return { title: "🚜 LE DIESEL", desc: "Parcours solide et régulier. Avec un contrat légèrement plus ambitieux et moins de fautes, tu franchiras un cap !", color: "var(--tertiary)" };
+            }
+            return { title: "🌱 CHALLENGER EN PROGRÈS", desc: "Évaluation validée. Continue de consolider tes placements techniques pour gagner en efficacité sur les prochains cycles !", color: "var(--text-main)" };
+        }
+
+        function calculateOfficialEvaluation() {
+            const l1 = parseInt(document.getElementById('eval-lvl1').value) || 1;
+            const l2 = parseInt(document.getElementById('eval-lvl2').value) || 1;
+            const l3 = parseInt(document.getElementById('eval-lvl3').value) || 1;
+            const l4 = parseInt(document.getElementById('eval-lvl4').value) || 1;
+            const sumLvl = l1 + l2 + l3 + l4;
+
+            const contrat = parseInt(document.getElementById('eval-contrat').value) || 20;
+            const noRep = parseInt(document.getElementById('eval-norep').value) || 0;
+
+            const athlete2 = document.getElementById('eval-athlete2').value || '';
+            const j1 = document.getElementById('eval-juge1').value || currentJudge;
+            const j2 = document.getElementById('eval-juge2').value || '';
+
+            const mVal = document.getElementById('eval-tw-min').value;
+            const sVal = document.getElementById('eval-tw-sec').value;
+            if (mVal === '' && sVal === '') return showAlert("⚠️ Saisis le temps réalisé au WOD 2 (minutes et secondes).");
+            const twMin = parseInt(mVal) || 0;
+            const twSec = parseInt(sVal) || 0;
+            const totalSec = twMin * 60 + twSec;
+            if (totalSec <= 0) return showAlert("⚠️ Le temps du WOD 2 doit être supérieur à 0.");
+
+            const ptsJuge = parseFloat(document.getElementById('eval-juge-pts').value) || 0;
+            const ptsPrepa = parseFloat(document.getElementById('eval-prepa-pts').value) || 0;
+
+            const ptsLvl = getPtsSommeNiveaux(sumLvl);
+            const ptsNoRep = getPtsNoRep(noRep);
+            const noteMaitrise = +(ptsLvl + ptsNoRep).toFixed(2);
+
+            const ptsContrat = getPtsContrat(contrat);
+            const ptsTemps = getPtsTempsWod2(totalSec);
+            const notePerf = +(ptsContrat + ptsTemps).toFixed(2);
+
+            const noteFinale = +(noteMaitrise + notePerf + ptsJuge + ptsPrepa).toFixed(2);
+            const pctNote = Math.round((noteFinale / 20) * 100);
+            const badgeClass = getBadgeClass(pctNote);
+            const timeStr = `${twMin}'${String(twSec).padStart(2, '0')}"`;
+            const nick = getOfficialEvalNickname(noteFinale, noRep, contrat, totalSec);
+            const duoLabel = athlete2 ? `${currentAthlete} & ${athlete2}` : currentAthlete;
+            const jugesLabel = j2 ? `${j1} & ${j2}` : j1;
+
+            evalPayload = {
+                timestamp: new Date(),
+                classe: currentClass,
+                juge: j1,
+                juge2: j2,
+                athlete: currentAthlete,
+                partenaire: athlete2,
+                seance: "EVAL",
+                type: "evaluation",
+                evaluation: {
+                    levels: [l1, l2, l3, l4],
+                    sumLvl,
+                    contrat,
+                    noRep,
+                    athlete2,
+                    juge1: j1,
+                    juge2: j2,
+                    twMin,
+                    twSec,
+                    totalSec,
+                    timeStr,
+                    ptsLvl,
+                    ptsNoRep,
+                    noteMaitrise,
+                    ptsContrat,
+                    ptsTemps,
+                    notePerf,
+                    ptsJuge,
+                    ptsPrepa,
+                    noteFinale,
+                    profilTitle: nick.title,
+                    profilDesc: nick.desc,
+                    badge: badgeClass
+                }
+            };
+
+            const box = document.getElementById('eval-bilan-container');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <div class="card" style="border: 2px solid ${nick.color}; text-align:center;">
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">
+                        Athlète : <strong>${currentAthlete}</strong>${athlete2 ? ` • Binôme WOD 2 : <strong>${athlete2}</strong>` : ''}<br>
+                        Juge(s) : <strong>${jugesLabel}</strong>
+                    </div>
+                    <div style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">NOTE FINALE OFFICIELLE</div>
+                    <div style="font-size:3.2rem; font-weight:900; color:#eab308; line-height:1.1; margin:0.4rem 0;">${noteFinale} <span style="font-size:1.5rem; color:var(--text-muted);">/ 20</span></div>
+                    <div style="font-size:1.35rem; font-weight:900; color:${nick.color}; margin-top:0.5rem;">${nick.title}</div>
+                    <p style="font-size:0.85rem; color:var(--text-main); margin:0.4rem 0 0 0; line-height:1.4;"><em>"${nick.desc}"</em></p>
+
+                    <div class="eval-grid-2" style="margin-top:1.2rem; text-align:left;">
+                        <div class="score-pill">
+                            <div class="score-pill-lbl">Maîtrise</div>
+                            <div class="score-pill-val" style="color:var(--primary);">${noteMaitrise} / 6</div>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Niveaux (${sumLvl}/12) : <strong>${ptsLvl}/3</strong><br>No-Rep (${noRep}) : <strong>${ptsNoRep}/3</strong></div>
+                        </div>
+                        <div class="score-pill">
+                            <div class="score-pill-lbl">Performance</div>
+                            <div class="score-pill-val" style="color:var(--secondary);">${notePerf} / 6</div>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Contrat ${contrat} : <strong>${ptsContrat}/3</strong><br>Temps (${timeStr}) : <strong>${ptsTemps}/3</strong></div>
+                        </div>
+                        <div class="score-pill">
+                            <div class="score-pill-lbl">Juge / Coach</div>
+                            <div class="score-pill-val" style="color:var(--tertiary);">${ptsJuge} / 4</div>
+                        </div>
+                        <div class="score-pill">
+                            <div class="score-pill-lbl">Préparation</div>
+                            <div class="score-pill-val" style="color:var(--quaternary);">${ptsPrepa} / 4</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-main eval-btn" id="btn-save-eval" style="margin-top:1.5rem;" onclick="submitOfficialEvaluation()">📤 ENREGISTRER LA NOTE DANS FIREBASE</button>
+                </div>
+            `;
+            box.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function submitOfficialEvaluation() {
+            if (!evalPayload) return;
+            const btn = document.getElementById('btn-save-eval');
+            btn.textContent = "⏳ Enregistrement..."; btn.disabled = true;
+            try {
+                const status = await savePayloadSafely(evalPayload);
+                // Enregistre également le résultat du Team WOD 2 pour le 2e athlète du binôme
+                const ath2 = evalPayload.partenaire;
+                if (ath2) {
+                    const ev = evalPayload.evaluation;
+                    const partnerWod2Payload = {
+                        timestamp: new Date(),
+                        classe: currentClass,
+                        juge: ev.juge1 || currentJudge,
+                        juge2: ev.juge2 || '',
+                        athlete: ath2,
+                        partenaire: currentAthlete,
+                        seance: "S6",
+                        type: "repetition",
+                        wod1: {
+                            contrat: ev.contrat,
+                            totalNoRep: 0,
+                            title: `🤝 WOD 2 Éval (${ev.timeStr} • ${ev.ptsTemps}/3 pts) avec ${currentAthlete}`,
+                            badge: ev.badge
+                        },
+                        teamWodRef: {
+                            min: ev.twMin, sec: ev.twSec, totalSec: ev.totalSec,
+                            timeStr: ev.timeStr, athlete2: currentAthlete,
+                            juge1: ev.juge1, juge2: ev.juge2
+                        }
+                    };
+                    await savePayloadSafely(partnerWod2Payload);
+                }
+                showAlert(status === 'cloud' ? `✅ Note (${evalPayload.evaluation.noteFinale}/20) enregistrée !` : "📶 Note sauvegardée hors-ligne !");
+                evalPayload = null;
+                loadHistorique(true);
+            } catch (e) {
+                showAlert("⚠️ Sauvegardé localement.");
+                evalPayload = null;
+                loadHistorique(true);
+            } finally {
+                btn.textContent = "📤 ENREGISTRER LA NOTE DANS FIREBASE"; btn.disabled = false;
+            }
+        }
+
         // ================== MOTEUR DES 10 PROFILS (CYCLE LONG TERME) ==================
         function determineProfile(histData) {
             if(!histData || histData.length === 0) return { title: "NOUVEAU CHALLENGER 🏁", desc: "Fais ta première séance pour découvrir ton profil !", color: "var(--text-muted)" };
@@ -1179,6 +2213,22 @@
                 if(d.type === "amrap" || d.seance === "S4") {
                     totalFait += (d.resultats.totalReps - d.resultats.noRep);
                     totalErr += d.resultats.noRep;
+                } else if(d.type === "deathby" || d.seance === "S5") {
+                    const mins = d.deathBy ? d.deathBy.mins : 0;
+                    const estReps = mins * 2 + Math.round((mins * (mins + 1)) / 2);
+                    const nr = (d.deathBy ? d.deathBy.noRep : 0) + (d.teamWod ? d.teamWod.noRep : 0);
+                    totalFait += Math.max(0, estReps - nr);
+                    totalErr += nr;
+                } else if(d.type === "repetition" || d.seance === "S6") {
+                    if (d.wod1) {
+                        totalFait += Math.max(0, (d.wod1.contrat * 5) - d.wod1.totalNoRep);
+                        totalErr += d.wod1.totalNoRep;
+                    }
+                } else if(d.type === "evaluation" || d.seance === "EVAL") {
+                    if (d.evaluation) {
+                        totalFait += Math.max(0, (d.evaluation.contrat * 5) - d.evaluation.noRep);
+                        totalErr += d.evaluation.noRep;
+                    }
                 } else if(d.tours && d.tours.length > 0) {
                     let objS = (d.contrat.ex1 ? d.contrat.ex1.target : (d.contrat.squat ? d.contrat.squat.target : 0)) + 
                                (d.contrat.ex2 ? d.contrat.ex2.target : (d.contrat.plank ? d.contrat.plank.target : 0)) + 
@@ -1259,10 +2309,32 @@
                      if (sid === "S4" || d.type === "amrap") {
                         chartLabels.push(`S${index+1} (AMRAP)`);
                         let techS = d.resultats.totalReps > 0 ? Math.round(((d.resultats.totalReps - d.resultats.noRep)/d.resultats.totalReps)*100) : 0;
-                        chartData.push(techS); // On plot la technique pour le graph, mais on n'impacte pas la Moyenne Globale
+                        chartData.push(techS);
                         
                         totalFaitAll += (d.resultats.totalReps - d.resultats.noRep);
                         totalErrAll += d.resultats.noRep;
+                     } else if (sid === "S5" || d.type === "deathby") {
+                        chartLabels.push(`S${index+1} (S5)`);
+                        const mins = d.deathBy ? d.deathBy.mins : 0;
+                        const nr = (d.deathBy ? d.deathBy.noRep : 0) + (d.teamWod ? d.teamWod.noRep : 0);
+                        const estReps = mins * 2 + Math.round((mins * (mins + 1)) / 2);
+                        chartData.push(Math.min(100, mins * 10));
+                        totalFaitAll += Math.max(0, estReps - nr);
+                        totalErrAll += nr;
+                     } else if (sid === "S6" || d.type === "repetition") {
+                        chartLabels.push(`S${index+1} (S6)`);
+                        const w = d.wod1 || { contrat: 20, totalNoRep: 0 };
+                        const tot = w.contrat * 5;
+                        const techS = tot > 0 ? Math.max(0, Math.round(((tot - w.totalNoRep) / tot) * 100)) : 0;
+                        chartData.push(techS);
+                        totalFaitAll += Math.max(0, tot - w.totalNoRep);
+                        totalErrAll += w.totalNoRep;
+                     } else if (sid === "EVAL" || d.type === "evaluation") {
+                        chartLabels.push(`S${index+1} (Note)`);
+                        const ev = d.evaluation || { noteFinale: 0, contrat: 20, noRep: 0 };
+                        chartData.push(Math.round((ev.noteFinale / 20) * 100));
+                        totalFaitAll += Math.max(0, (ev.contrat * 5) - ev.noRep);
+                        totalErrAll += ev.noRep;
                      } else if(d.tours && d.tours.length > 0) {
                         chartLabels.push(`S${index+1} (${sid})`);
                         let sum1 = 0, sum2 = 0, sum3 = 0, err1 = 0, err2 = 0, err3 = 0;
@@ -1389,6 +2461,57 @@
                                     <span style="font-weight:bold;">${d.resultats.profilTitle}</span>
                                 </div>
                             </div>`;
+                    } else if (d.seance === "S5" || d.type === "deathby") {
+                        const mins = d.deathBy ? d.deathBy.mins : 0;
+                        const nr = d.deathBy ? d.deathBy.noRep : 0;
+                        const twTxt = d.teamWod ? ` • Team WOD : ${d.teamWod.timeStr}` : '';
+                        const duoTxt = (d.partenaire || d.teamWod?.athlete2) ? `<div style="font-size:0.75rem; color:var(--secondary); margin-top:4px;">🤝 Binôme : ${d.partenaire || d.teamWod.athlete2}${d.teamWod?.profilTitle ? ' • ' + d.teamWod.profilTitle : ''}</div>` : '';
+                        listDiv.innerHTML += `
+                            <div class="card" style="padding:1rem;">
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; margin-bottom:0.5rem;">
+                                    <strong style="color:var(--danger);">S5 (Death By) du ${dateStr}</strong>
+                                    <span class="badge ${d.deathBy?.badge || 'badge-gris'}">${mins} min${twTxt}</span>
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                                    <span style="color:var(--danger);">❌ ${nr} No-Rep</span>
+                                    <span style="font-weight:bold;">${d.deathBy?.title || ''}</span>
+                                </div>
+                                ${duoTxt}
+                            </div>`;
+                    } else if (d.seance === "S6" || d.type === "repetition") {
+                        const w = d.wod1 || { contrat: 20, totalNoRep: 0, title: '', badge: 'badge-gris' };
+                        const twTxt = (d.teamWodRef && d.teamWodRef.totalSec > 0) ? ` • Réf WOD2 : ${d.teamWodRef.timeStr}` : '';
+                        const duoTxt = (d.partenaire || d.teamWodRef?.athlete2) ? `<div style="font-size:0.75rem; color:var(--secondary); margin-top:4px;">🤝 Binôme WOD 2 : ${d.partenaire || d.teamWodRef.athlete2}${d.teamWodRef?.profilTitle ? ' • ' + d.teamWodRef.profilTitle : ''}</div>` : '';
+                        listDiv.innerHTML += `
+                            <div class="card" style="padding:1rem;">
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; margin-bottom:0.5rem;">
+                                    <strong style="color:#06b6d4;">S6 (Répétition) du ${dateStr}</strong>
+                                    <span class="badge ${w.badge}">Contrat ${w.contrat}${twTxt}</span>
+                                </div>
+                                <div style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                                    <span style="color:var(--danger);">❌ ${w.totalNoRep} No-Rep</span>
+                                    <span style="font-weight:bold;">${w.title}</span>
+                                </div>
+                                ${duoTxt}
+                            </div>`;
+                    } else if (d.seance === "EVAL" || d.type === "evaluation") {
+                        const ev = d.evaluation;
+                        const duoTxt = (d.partenaire || ev.athlete2) ? `<div style="font-size:0.75rem; color:var(--secondary); margin-top:5px;">🤝 Binôme WOD 2 : <strong>${d.partenaire || ev.athlete2}</strong> (${ev.timeStr})</div>` : '';
+                        listDiv.innerHTML += `
+                            <div class="card" style="padding:1rem; border:1px solid #eab308;">
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; margin-bottom:0.5rem;">
+                                    <strong style="color:#eab308;">📝 ÉVALUATION du ${dateStr}</strong>
+                                    <span class="badge ${ev.badge}" style="font-size:0.95rem;">${ev.noteFinale} / 20</span>
+                                </div>
+                                ${ev.profilTitle ? `<div style="font-weight:800; color:#fbbf24; font-size:0.85rem; margin-bottom:6px;">${ev.profilTitle}</div>` : ''}
+                                <div style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                                    <span>Maîtrise : <strong>${ev.noteMaitrise}/6</strong></span>
+                                    <span>Perf : <strong>${ev.notePerf}/6</strong></span>
+                                    <span>Juge : <strong>${ev.ptsJuge}/4</strong></span>
+                                    <span>Prépa : <strong>${ev.ptsPrepa}/4</strong></span>
+                                </div>
+                                ${duoTxt}
+                            </div>`;
                     } else if(d.tours && d.tours.length > 0) {
                         let sum1 = 0, sum2 = 0, sum3 = 0;
                         d.tours.forEach(t => { sum1 += (t.ex1?.fait || t.squat?.fait || 0); sum2 += (t.ex2?.fait || t.plank?.fait || 0); sum3 += (t.ex3?.fait || t.pushup?.fait || 0); });
@@ -1422,12 +2545,12 @@
         async function loadClassMatrix() {
             const classId = document.getElementById('filter-class').value;
             const tbody = document.getElementById('matrix-body');
-            if(!classId) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);">Sélectionnez une classe.</td></tr>'; return; }
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">⏳ Construction du tableau...</td></tr>';
+            if(!classId) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text-muted);">Sélectionnez une classe.</td></tr>'; return; }
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">⏳ Construction du tableau...</td></tr>';
             
             try {
                 const classDoc = await db.collection('classes').doc(classId).get();
-                if(!classDoc.exists) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--danger);">Classe introuvable.</td></tr>'; return; }
+                if(!classDoc.exists) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--danger);">Classe introuvable.</td></tr>'; return; }
                 currentRoster = classDoc.data().students || [];
                 
                 const snapshot = await db.collection('resultats').where('classe', '==', classId).get();
@@ -1436,13 +2559,19 @@
                 if (localClassPending.length > 0) profRawData = profRawData.concat(localClassPending);
                 
                 let studentData = {};
-                currentRoster.forEach(s => { studentData[s] = { S1: null, S2: null, S3: null, S4: null }; });
+                currentRoster.forEach(s => { studentData[s] = { S1: null, S2: null, S3: null, S4: null, S5: null, S6: null, EVAL: null }; });
                 profRawData.sort((a,b) => getTimestampMs(a.timestamp) - getTimestampMs(b.timestamp));
                 
                 profRawData.forEach(d => {
                     if(studentData[d.athlete] !== undefined) {
                         if (d.seance === "S4" || d.type === "amrap") {
                             studentData[d.athlete].S4 = { raw: d };
+                        } else if (d.seance === "S5" || d.type === "deathby") {
+                            studentData[d.athlete].S5 = { raw: d };
+                        } else if (d.seance === "S6" || d.type === "repetition") {
+                            studentData[d.athlete].S6 = { raw: d };
+                        } else if (d.seance === "EVAL" || d.type === "evaluation") {
+                            studentData[d.athlete].EVAL = { raw: d };
                         } else if(d.tours && d.tours.length > 0) {
                             let sid = d.seance === "S1_5_TOURS" ? "S1" : d.seance;
                             let sum1=0, sum2=0, sum3=0;
@@ -1459,21 +2588,25 @@
                 tbody.innerHTML = '';
                 currentRoster.forEach(athlete => {
                     let s1 = studentData[athlete].S1, s2 = studentData[athlete].S2, s3 = studentData[athlete].S3, s4 = studentData[athlete].S4;
+                    let s5 = studentData[athlete].S5, s6 = studentData[athlete].S6, ev = studentData[athlete].EVAL;
                     let s1H = s1 ? `<span class="badge ${getBadgeClass(s1.moy)}">${s1.moy}%</span>` : `<span class="badge badge-gris">N/A</span>`;
                     let s2H = s2 ? `<span class="badge ${getBadgeClass(s2.moy)}">${s2.moy}%</span>` : `<span class="badge badge-gris">N/A</span>`;
                     let s3H = s3 ? `<span class="badge ${getBadgeClass(s3.moy)}">${s3.moy}%</span>` : `<span class="badge badge-gris">N/A</span>`;
                     let s4H = s4 ? `<span class="badge ${s4.raw.resultats.badge}">${s4.raw.resultats.tours}T +${s4.raw.resultats.repsSup}</span>` : `<span class="badge badge-gris">N/A</span>`;
+                    let s5H = s5 ? `<span class="badge ${s5.raw.deathBy?.badge || 'badge-gris'}">${s5.raw.deathBy?.mins || 0}m</span>` : `<span class="badge badge-gris">N/A</span>`;
+                    let s6H = s6 ? `<span class="badge ${s6.raw.wod1?.badge || 'badge-gris'}">C${s6.raw.wod1?.contrat || '-'}</span>` : `<span class="badge badge-gris">N/A</span>`;
+                    let evH = ev ? `<span class="badge ${ev.raw.evaluation.badge}" style="font-size:0.95rem;">${ev.raw.evaluation.noteFinale}/20</span>` : `<span class="badge badge-gris">N/A</span>`;
                     
                     let moys = [];
                     if(s1) moys.push(s1.moy); if(s2) moys.push(s2.moy); if(s3) moys.push(s3.moy);
                     let globalMoy = moys.length > 0 ? Math.round(moys.reduce((a,b)=>a+b,0)/moys.length) : null;
-                    let globalHtml = globalMoy !== null ? `<span class="badge ${getBadgeClass(globalMoy)}" style="font-size:1rem;">${globalMoy}%</span>` : `-`;
+                    let globalHtml = globalMoy !== null ? `<span class="badge ${getBadgeClass(globalMoy)}">${globalMoy}%</span>` : `-`;
                     let safeName = encodeURIComponent(athlete);
 
-                    tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}</td><td>${s2H}</td><td>${s3H}</td><td>${s4H}</td><td>${globalHtml}</td><td><button class="btn-secondary" style="margin:0; padding:4px 8px;" onclick="showStudentDetails('${safeName}')">🔍</button></td></tr>`;
+                    tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}</td><td>${s2H}</td><td>${s3H}</td><td>${s4H}</td><td>${s5H}</td><td>${s6H}</td><td>${evH}</td><td>${globalHtml}</td><td><button class="btn-secondary" style="margin:0; padding:4px 8px;" onclick="showStudentDetails('${safeName}')">🔍</button></td></tr>`;
                 });
                 profMatrixData = studentData; 
-            } catch (e) { tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger);">Erreur réseau.</td></tr>`; }
+            } catch (e) { tbody.innerHTML = `<tr><td colspan="10" style="color:var(--danger);">Erreur réseau.</td></tr>`; }
         }
 
         function showStudentDetails(encodedName) {
@@ -1481,9 +2614,9 @@
             let data = profMatrixData[athlete];
             let html = `<h4 style="margin-top:0; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:0.5rem;">${athlete}</h4>`;
             
-            if(!data.S1 && !data.S2 && !data.S3 && !data.S4) html += `<p style="color:var(--text-muted);">Aucune donnée.</p>`;
+            if(!data.S1 && !data.S2 && !data.S3 && !data.S4 && !data.S5 && !data.S6 && !data.EVAL) html += `<p style="color:var(--text-muted);">Aucune donnée.</p>`;
             else {
-                ['S1', 'S2', 'S3', 'S4'].forEach(sid => {
+                ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'EVAL'].forEach(sid => {
                     if(data[sid]) {
                         let d = data[sid].raw;
                         if(sid === 'S4' || d.type === 'amrap') {
@@ -1493,6 +2626,37 @@
                                 <p style="font-size:0.75rem; color:var(--text-muted); margin: 5px 0;">Juge : ${d.juge} | ${formatTimestampFR(d.timestamp)}</p>
                                 <p style="font-size:0.85rem; color:var(--danger); margin-bottom:5px;">❌ ${d.resultats.noRep} No-Rep</p>
                                 <span class="badge ${d.resultats.badge}" style="font-size:0.75rem;">${d.resultats.profilTitle}</span>
+                            </div>`;
+                        } else if(sid === 'S5' || d.type === 'deathby') {
+                            const jugesTxt = d.juge2 ? `${d.juge} & ${d.juge2}` : d.juge;
+                            const partTxt = d.partenaire || d.teamWod?.athlete2;
+                            html += `
+                            <div style="background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; margin-bottom:1rem;">
+                                <strong style="color:var(--danger);">S5 (Death By) - ${d.deathBy?.mins || 0} min validées (❌ ${d.deathBy?.noRep || 0} No-Rep)</strong>
+                                <p style="font-size:0.75rem; color:var(--text-muted); margin: 5px 0;">Juge(s) : ${jugesTxt} | ${formatTimestampFR(d.timestamp)}</p>
+                                ${d.teamWod ? `<p style="font-size:0.8rem; color:var(--secondary); margin:4px 0;">Team WOD 170${partTxt ? ' (avec ' + partTxt + ')' : ''} : ${d.teamWod.timeStr} (❌ ${d.teamWod.noRep} No-Rep)</p>` : ''}
+                            </div>`;
+                        } else if(sid === 'S6' || d.type === 'repetition') {
+                            const jugesTxt = d.juge2 ? `${d.juge} & ${d.juge2}` : d.juge;
+                            const partTxt = d.partenaire || d.teamWodRef?.athlete2;
+                            html += `
+                            <div style="background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px; margin-bottom:1rem;">
+                                <strong style="color:#06b6d4;">S6 (Répétition) - Contrat ${d.wod1?.contrat} (Niveaux ${d.wod1?.levels?.join('/')})</strong>
+                                <p style="font-size:0.75rem; color:var(--text-muted); margin: 5px 0;">Juge(s) : ${jugesTxt} | ${formatTimestampFR(d.timestamp)}</p>
+                                <p style="font-size:0.8rem; color:var(--danger); margin:4px 0;">❌ ${d.wod1?.totalNoRep || 0} No-Rep • ${d.wod1?.title || ''}</p>
+                                ${partTxt ? `<p style="font-size:0.8rem; color:var(--secondary); margin:4px 0;">Binôme WOD 2 : ${partTxt} (${d.teamWodRef?.timeStr || '-'})</p>` : ''}
+                            </div>`;
+                        } else if(sid === 'EVAL' || d.type === 'evaluation') {
+                            const ev = d.evaluation;
+                            const jugesTxt = (d.juge2 || ev.juge2) ? `${d.juge} & ${d.juge2 || ev.juge2}` : d.juge;
+                            const partTxt = d.partenaire || ev.athlete2;
+                            html += `
+                            <div style="background:rgba(234,179,8,0.12); border:1px solid #eab308; padding:1rem; border-radius:8px; margin-bottom:1rem;">
+                                <strong style="color:#eab308;">📝 ÉVALUATION OFFICIELLE : ${ev.noteFinale} / 20</strong>
+                                <p style="font-size:0.75rem; color:var(--text-muted); margin: 5px 0;">Juge(s) : ${jugesTxt}${partTxt ? ' • Binôme WOD 2 : ' + partTxt : ''} | ${formatTimestampFR(d.timestamp)}</p>
+                                <p style="font-size:0.8rem; margin:4px 0;">Maîtrise : <strong>${ev.noteMaitrise}/6</strong> (Niv ${ev.sumLvl}/12 = ${ev.ptsLvl}pt, NoRep ${ev.noRep} = ${ev.ptsNoRep}pt)</p>
+                                <p style="font-size:0.8rem; margin:4px 0;">Performance : <strong>${ev.notePerf}/6</strong> (Contrat ${ev.contrat} = ${ev.ptsContrat}pt, WOD2 ${ev.timeStr} = ${ev.ptsTemps}pt)</p>
+                                <p style="font-size:0.8rem; margin:4px 0;">Juge/Coach : <strong>${ev.ptsJuge}/4</strong> • Préparation : <strong>${ev.ptsPrepa}/4</strong></p>
                             </div>`;
                         } else {
                             let cfg = SESSIONS[sid] || SESSIONS["S1"];
@@ -1537,17 +2701,21 @@
 
             currentRoster.forEach(athlete => {
                 let s1 = profMatrixData[athlete]?.S1, s2 = profMatrixData[athlete]?.S2, s3 = profMatrixData[athlete]?.S3, s4 = profMatrixData[athlete]?.S4;
+                let s5 = profMatrixData[athlete]?.S5, s6 = profMatrixData[athlete]?.S6, ev = profMatrixData[athlete]?.EVAL;
                 let s1H = s1 ? `<span class="pdf-b ${getPdfBadgeClass(s1.moy)}">${s1.moy}%</span>` : `<span class="pdf-gris">Abs</span>`;
                 let s2H = s2 ? `<span class="pdf-b ${getPdfBadgeClass(s2.moy)}">${s2.moy}%</span>` : `<span class="pdf-gris">Abs</span>`;
                 let s3H = s3 ? `<span class="pdf-b ${getPdfBadgeClass(s3.moy)}">${s3.moy}%</span>` : `<span class="pdf-gris">Abs</span>`;
                 let s4H = s4 ? `<span class="pdf-b ${s4.raw.resultats.badge.replace('badge-','pdf-')}">${s4.raw.resultats.tours}T+${s4.raw.resultats.repsSup}</span>` : `<span class="pdf-gris">Abs</span>`;
+                let s5H = s5 ? `<span class="pdf-b ${(s5.raw.deathBy?.badge || 'badge-gris').replace('badge-','pdf-')}">${s5.raw.deathBy?.mins || 0}m</span>` : `<span class="pdf-gris">Abs</span>`;
+                let s6H = s6 ? `<span class="pdf-b ${(s6.raw.wod1?.badge || 'badge-gris').replace('badge-','pdf-')}">C${s6.raw.wod1?.contrat || '-'}</span>` : `<span class="pdf-gris">Abs</span>`;
+                let evH = ev ? `<span class="pdf-b ${ev.raw.evaluation.badge.replace('badge-','pdf-')}">${ev.raw.evaluation.noteFinale}/20</span>` : `<span class="pdf-gris">-</span>`;
                 
                 let moys = [];
                 if(s1) moys.push(s1.moy); if(s2) moys.push(s2.moy); if(s3) moys.push(s3.moy);
                 let globalMoy = moys.length > 0 ? Math.round(moys.reduce((a,b)=>a+b,0)/moys.length) : null;
                 let gHtml = globalMoy !== null ? `<span class="pdf-b ${getPdfBadgeClass(globalMoy)}">${globalMoy}%</span>` : `-`;
 
-                tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}</td><td>${s2H}</td><td>${s3H}</td><td>${s4H}</td><td>${gHtml}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${athlete}</td><td>${s1H}</td><td>${s2H}</td><td>${s3H}</td><td>${s4H}</td><td>${s5H}</td><td>${s6H}</td><td>${evH}</td><td>${gHtml}</td></tr>`;
             });
 
             const element = document.getElementById('pdf-container');

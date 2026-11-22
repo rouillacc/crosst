@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ct-eps-v3';
+const CACHE_NAME = 'ct-eps-v6';
 const ASSETS = [
   './',
   './index.html',
