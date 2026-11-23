@@ -453,10 +453,10 @@
             <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.35);">
                 <h3 style="margin-top:0; color:var(--danger); text-align:center;">BLOC 1 : ÉPREUVE "DEATH BY" (MORT SUBITE)</h3>
                 <div style="background:rgba(0,0,0,0.25); padding:0.9rem; border-radius:10px; font-size:0.85rem; color:var(--text-main); margin-bottom:1rem; line-height:1.5;">
-                    <strong>📋 Règles :</strong> Chaque minute commence par <strong>2 Burpees obligatoires</strong>, puis on ajoute un nombre croissant de <strong>Squats ou Fentes</strong> :<br>
-                    • <strong>Min 1 :</strong> 2 Burpees + 1 rep<br>
-                    • <strong>Min 2 :</strong> 2 Burpees + 2 reps<br>
-                    • <strong>Min 3 :</strong> 2 Burpees + 3 reps...<br>
+                    <strong>📋 Règles :</strong> Chaque minute commence par <strong>4 Burpees obligatoires</strong>, puis on ajoute un nombre croissant de <strong>Squats ou Fentes</strong> :<br>
+                    • <strong>Min 1 :</strong> 4 Burpees + 1 rep<br>
+                    • <strong>Min 2 :</strong> 4 Burpees + 2 reps<br>
+                    • <strong>Min 3 :</strong> 4 Burpees + 3 reps...<br>
                     <span style="color:var(--warning);">🛑 Le jeu s'arrête dès que l'athlète ne finit plus dans la minute.</span>
                 </div>
 
@@ -1646,28 +1646,28 @@
             const noRep = parseInt(document.getElementById('s5-db-norep').value) || 0;
 
             let fb = {};
-            if (mins >= 9 && noRep <= 2) {
+            if (mins >= 8 && noRep <= 2) {
                 fb = {
                     title: "👑 MACHINE DE GUERRE",
-                    desc: `${mins} minutes validées avec seulement ${noRep} No-Rep ! Tu encaisses l'acidose musculaire sans jamais lâcher ta posture. Niveau exceptionnel !`,
+                    desc: `${mins} minutes validées (4 Burpees/min) avec seulement ${noRep} No-Rep ! Tu encaisses l'acidose musculaire sans jamais lâcher ta posture. Niveau exceptionnel !`,
                     badge: "badge-vert", color: "#fbbf24"
                 };
             } else if (noRep === 0 && mins >= 5) {
                 fb = {
                     title: "🎯 LE SNIPER",
-                    desc: `${mins} minutes validées avec 0 No-Rep ! Précision chirurgicale : tes Burpees et tes Squats/Fentes restent 100% conformes sous fatigue.`,
+                    desc: `${mins} minutes validées avec 0 No-Rep ! Précision chirurgicale : tes 4 Burpees et tes Squats/Fentes restent 100% conformes sous fatigue.`,
                     badge: "badge-vert", color: "var(--primary)"
                 };
-            } else if (mins >= 7 && noRep <= 4) {
+            } else if (mins >= 6 && noRep <= 4) {
                 fb = {
                     title: "🛡️ LE SPARTIATE",
-                    desc: `${mins} minutes validées (${noRep} No-Rep). Gros mental dans la zone rouge : ta posture résiste à la brûlure musculaire !`,
+                    desc: `${mins} minutes validées (${noRep} No-Rep). Gros mental dans la zone rouge : ta posture résiste à la brûlure musculaire malgré les 4 Burpees/min !`,
                     badge: "badge-vert", color: "var(--secondary)"
                 };
-            } else if (mins >= 7 && noRep >= 5) {
+            } else if (mins >= 6 && noRep >= 5) {
                 fb = {
                     title: "🦍 LE BULLDOZER",
-                    desc: `Gros moteur (${mins} minutes), mais ${noRep} No-Rep sous l'acidose ! Ralentis légèrement la transition sur les Burpees pour verrouiller ton dos.`,
+                    desc: `Gros moteur (${mins} minutes), mais ${noRep} No-Rep sous l'acidose ! Ralentis légèrement la transition sur les 4 Burpees pour verrouiller ton dos.`,
                     badge: "badge-jaune", color: "var(--warning)"
                 };
             } else if (mins >= 4 && noRep <= 2) {
@@ -2215,7 +2215,7 @@
                     totalErr += d.resultats.noRep;
                 } else if(d.type === "deathby" || d.seance === "S5") {
                     const mins = d.deathBy ? d.deathBy.mins : 0;
-                    const estReps = mins * 2 + Math.round((mins * (mins + 1)) / 2);
+                    const estReps = mins * 4 + Math.round((mins * (mins + 1)) / 2);
                     const nr = (d.deathBy ? d.deathBy.noRep : 0) + (d.teamWod ? d.teamWod.noRep : 0);
                     totalFait += Math.max(0, estReps - nr);
                     totalErr += nr;
@@ -2317,7 +2317,7 @@
                         chartLabels.push(`S${index+1} (S5)`);
                         const mins = d.deathBy ? d.deathBy.mins : 0;
                         const nr = (d.deathBy ? d.deathBy.noRep : 0) + (d.teamWod ? d.teamWod.noRep : 0);
-                        const estReps = mins * 2 + Math.round((mins * (mins + 1)) / 2);
+                        const estReps = mins * 4 + Math.round((mins * (mins + 1)) / 2);
                         chartData.push(Math.min(100, mins * 10));
                         totalFaitAll += Math.max(0, estReps - nr);
                         totalErrAll += nr;
